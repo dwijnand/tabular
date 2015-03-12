@@ -3,15 +3,7 @@ import sbt._, Keys._
 import scala.language.implicitConversions
 
 object Build extends Build {
-  implicit final class ProjectWithAlso(val _p: Project) {
-    def also(ss: Seq[Setting[_]]) = _p settings (ss.toSeq: _*)
-
-    def smartSettings(sds: SettingsDefinition*) = _p also SmartSettings(sds: _*)
-  }
-
-  def SmartSettings(sds: SettingsDefinition*): Seq[Setting[_]] = sds flatMap (_.settings)
-
-  val tabular = project in file(".") smartSettings (
+  val tabular = project in file(".") settings (
     version in ThisBuild := "0.1-SNAPSHOT",
 
     licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
