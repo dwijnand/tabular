@@ -16,11 +16,12 @@ object Build extends Build {
 
     licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
 
-    scalaVersion := "2.11.5",
+    scalaVersion := "2.11.6",
     crossScalaVersions := Seq(scalaVersion.value),
 
     scalacOptions ++= Seq("-encoding", "utf8"),
     scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint"),
+    scalacOptions  += "-language:postfixOps",
     scalacOptions  += "-Xfatal-warnings",
     scalacOptions  += "-Xfuture",
     scalacOptions  += "-Yinline-warnings",
