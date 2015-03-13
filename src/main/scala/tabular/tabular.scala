@@ -7,7 +7,7 @@ package object tabular {
     def tabular(ts: (A => String)*): String = {
       if (xs.isEmpty || ts.isEmpty) ""
       else {
-        def rows = xs.iter map (v => ts.iter map (f => f(v)))
+        def rows = xs.iter map (v => ts.iter map (s => s(v)))
         def cols = ts.iter map (s => xs.iter map (v => s(v)))
         def renderLines = {
           val maxWidths = cols map (_ map (_.length) max)
