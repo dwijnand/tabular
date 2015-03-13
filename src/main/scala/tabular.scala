@@ -19,7 +19,7 @@ package object tabular {
   type ->[+A, +B]   = Product2[A, B]
   type StrWithAlign = String -> TextAlign
 
-  implicit class StringWithRJ(private val s: String) extends AnyVal {
+  implicit class StringWithTextAlign(private val s: String) extends AnyVal {
     def lj = new LString(s)
     def rj = new RString(s)
   }
