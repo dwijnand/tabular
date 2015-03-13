@@ -2,13 +2,14 @@ package object tabular {
   type ->[+A, +B]  = Product2[A, B]
 
   implicit class TraversableW[A](private val xs: Traversable[A]) extends AnyVal {
-    def iter: TraversableOnce[A] = xs match { case ys: Iterable[A] => ys.iterator; case _ => xs }
-
     def tabular(fs: (A => String)*): String = {
       if (xs.isEmpty || fs.isEmpty) ""
       else {
-        def rows = xs.iter map (x => fs.iter map (f => f(x)))
-        def cols = fs.iter map (f => xs.iter map (x => f(x)))
+        val rows0 = xs.toVector
+        val cols0 = fs.toVector
+
+        def cols = cols0 map (f => rows0 map (x => f(x)))
+        def rows = rows0 map (x => cols0 map (f => f(x)))
         def renderLines = {
           val maxWidths = cols map (_ map (_.length) max)
           val rowFormat = maxWidths map leftFmt mkString " "
@@ -20,11 +21,11 @@ package object tabular {
   }
 
   implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) extends AnyVal {
-    def kvFormat = rightFmt(xs.iter map (_._1.toString.length) max) + ": %s"
+    def kvFormat = rightFmt(xs map (_._1.toString.length) max) + ": %s"
 
     def showkv(vShow: V => String = _.toString): String = {
       val fmt = kvFormat
-      xs.iter map (kv => fmt.format (kv._1, vShow(kv._2))) mkString "\n"
+      xs map (kv => fmt.format (kv._1, vShow(kv._2))) mkString "\n"
     }
   }
 
