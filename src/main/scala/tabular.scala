@@ -4,11 +4,11 @@ package object tabular {
   implicit class TraversableW[A](private val xs: Traversable[A]) extends AnyVal {
     def iter: TraversableOnce[A] = xs match { case ys: Iterable[A] => ys.iterator; case _ => xs }
 
-    def tabular(ts: (A => String)*): String = {
-      if (xs.isEmpty || ts.isEmpty) ""
+    def tabular(fs: (A => String)*): String = {
+      if (xs.isEmpty || fs.isEmpty) ""
       else {
-        def rows = xs.iter map (v => ts.iter map (s => s(v)))
-        def cols = ts.iter map (s => xs.iter map (v => s(v)))
+        def rows = xs.iter map (x => fs.iter map (f => f(x)))
+        def cols = fs.iter map (f => xs.iter map (x => f(x)))
         def renderLines = {
           val maxWidths = cols map (_ map (_.length) max)
           val rowFormat = maxWidths map leftFmt mkString " "
