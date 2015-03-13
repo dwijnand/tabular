@@ -31,6 +31,8 @@ object Build extends Build {
     maxErrors := 5,
     triggeredMessage := Watched.clearWhenTriggered,
 
+    initialCommands in console <+= resourceDirectory in Compile mapValue (d => IO read d / "initialCommands.scala"),
+
     watchSources ++= (baseDirectory.value * "*.sbt").get,
     watchSources ++= (baseDirectory.value / "project" * "*.scala").get)
 }
