@@ -13,9 +13,13 @@ abstract class TabularPackage {
   case object RAlign extends TextAlign { def alignBy(width: Int) = if (width == 0) "%s" else s"%${width}s" }
 
   sealed trait StrWithAlign
-  class StrWithAlignImpl(val string: String, val align: TextAlign)
-  final class LString(string: String) extends StrWithAlignImpl(string, LAlign) with StrWithAlign
-  final class RString(string: String) extends StrWithAlignImpl(string, RAlign) with StrWithAlign
+  sealed class StrWithAlignImpl(val string: String, val align: TextAlign)
+  final class LString(string: String) extends StrWithAlignImpl(string, LAlign) with StrWithAlign {
+    def +(s: String) = new LString(string + s)
+  }
+  final class RString(string: String) extends StrWithAlignImpl(string, RAlign) with StrWithAlign {
+    def +(s: String) = new RString(string + s)
+  }
 
   object StrWithAlign {
     implicit def liftAny[A](x: A): StrWithAlign = x.lj
@@ -58,7 +62,7 @@ abstract class TabularPackage {
 
   implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) {
     def showkv(implicit vShow: V => String = _.toString): String =
-      xs tabular (kv => (kv._1 + ":").rj, kv => vShow(kv._2))
+      xs tabular (_._1.rj + ":", kv => vShow(kv._2))
   }
 
   implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) {
