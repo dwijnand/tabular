@@ -1,5 +1,9 @@
 import net.mox9.tabular._
 
+val m = Map("a" -> 1, "bb" -> 2, "ccc" -> 3)
+
+val mm = Map("a" -> Seq(1), "bb" -> Seq(2, 2), "ccc" -> Seq(3, 3, 3))
+
 case class Ver(major: Int, minor: Int, patch: Int) {
   override def toString = s"$major.$minor.$patch"
 }

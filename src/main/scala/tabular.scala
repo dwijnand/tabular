@@ -57,12 +57,7 @@ abstract class TabularPackage {
   }
 
   implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) {
-    def kvFormat = rightFmt(xs map (_._1.toString.length) max) + ": %s"
-
-    def showkv(vShow: V => String = _.toString): String = {
-      val fmt = kvFormat
-      xs map (kv => fmt.format (kv._1, vShow(kv._2))) mkString "\n"
-    }
+    def showkv(vShow: V => String = _.toString): String = xs tabular (kv => (kv._1 + ":").rj, kv => vShow(kv._2))
   }
 
   implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) {
