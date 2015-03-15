@@ -11,15 +11,9 @@ abstract class TabularPackage {
   case object RAlign extends TextAlign { def alignBy(width: Int) = rightFmt(width) }
 
   sealed trait StrWithAlign
-
-  final class LString(val string: String) extends StrWithAlign {
-    def align = LAlign
-    def canEqual(that: Any): Boolean = that.isInstanceOf[LString]
-  }
-  final class RString(val string: String) extends StrWithAlign {
-    def align = RAlign
-    def canEqual(that: Any): Boolean = that.isInstanceOf[RString]
-  }
+  class StrWithAlignImpl(val string: String, val align: TextAlign)
+  final class LString(string: String) extends StrWithAlignImpl(string, LAlign) with StrWithAlign
+  final class RString(string: String) extends StrWithAlignImpl(string, RAlign) with StrWithAlign
 
   trait StrWithAlign0 {
     implicit def liftAny[A](x: A): StrWithAlign = x.lj
