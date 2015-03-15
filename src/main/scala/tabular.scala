@@ -18,22 +18,22 @@ abstract class TabularPackage {
   object StrWithAlign extends StrWithAlign0 {
     implicit class StrWithAlignOps(private val swa: StrWithAlign) {
       def str: String = swa match {
-        case ls: LString => ls._1
-        case rs: RString => rs._1
+        case ls: LString => ls.string
+        case rs: RString => rs.string
       }
-      def fmt: TextAlign = swa match {
-        case ls: LString => ls._2
-        case rs: RString => rs._2
+      def align: TextAlign = swa match {
+        case ls: LString => ls.align
+        case rs: RString => rs.align
       }
     }
   }
 
-  final class LString(val _1: String) extends StrWithAlign {
-    def _2 = LAlign
+  final class LString(val string: String) extends StrWithAlign {
+    def align = LAlign
     def canEqual(that: Any): Boolean = that.isInstanceOf[LString]
   }
-  final class RString(val _1: String) extends StrWithAlign {
-    def _2 = RAlign
+  final class RString(val string: String) extends StrWithAlign {
+    def align = RAlign
     def canEqual(that: Any): Boolean = that.isInstanceOf[RString]
   }
 
@@ -43,18 +43,18 @@ abstract class TabularPackage {
   }
 
   implicit class TraversableW[A](private val xs: Traversable[A]) {
-    def tabular(fs: (A => StrWithAlign)*): String = {
-      if (xs.isEmpty || fs.isEmpty) ""
+    def tabular(columns: (A => StrWithAlign)*): String = {
+      if (xs.isEmpty || columns.isEmpty) ""
       else {
-        val rows0 = xs.toVector
-        val cols0 = fs.toVector
+        val values = xs.toVector
+        val functions = columns.toVector
 
-        def rows = rows0 map (x => cols0 map (f => f(x).str))
-        def cols = cols0 map (f => rows0 map (x => f(x).str))
+        def rows = values map (x => functions map (f => f(x).str))
+        def cols = functions map (f => values map (x => f(x).str))
         def renderLines = {
-          def maxWidths = cols map (_ map (_.length) max)
-          def aligns = cols0 map (_(rows0.head).fmt)
-          def colFmts = (aligns, maxWidths).zipped map ((align, width) => align alignBy width)
+          def widths = cols map (_ map (_.length) max)
+          def aligns = functions map (_(values.head).align)
+          def colFmts = (widths, aligns).zipped map ((width, align) => align alignBy width)
           val rowFormat = colFmts mkString " "
           rows map (row => rowFormat.format(row: _*))
         }
