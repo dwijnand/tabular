@@ -33,8 +33,8 @@ abstract class TabularPackage {
         def cols = cols0 map (f => rows0 map (x => f._1(x)))
         def rows = rows0 map (x => cols0 map (f => f._1(x)))
         def renderLines = {
-          val maxWidths = cols map (_ map (_.length) max)
-          val colFmts = (cols0, maxWidths).zipped map ((col1, width) => col1._2 alignBy width)
+          def maxWidths = cols map (_ map (_.length) max)
+          def colFmts = (cols0, maxWidths).zipped map ((col1, width) => col1._2 alignBy width)
           val rowFormat = colFmts mkString " "
           rows map (row => rowFormat.format(row: _*))
         }
