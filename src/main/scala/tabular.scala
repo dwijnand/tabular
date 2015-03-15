@@ -12,8 +12,17 @@ abstract class TabularPackage {
 
   sealed trait StrWithAlign
 
+  final class LString(val string: String) extends StrWithAlign {
+    def align = LAlign
+    def canEqual(that: Any): Boolean = that.isInstanceOf[LString]
+  }
+  final class RString(val string: String) extends StrWithAlign {
+    def align = RAlign
+    def canEqual(that: Any): Boolean = that.isInstanceOf[RString]
+  }
+
   trait StrWithAlign0 {
-    implicit def liftAny[A](x: A): StrWithAlign = x.toString.lj
+    implicit def liftAny[A](x: A): StrWithAlign = x.lj
   }
   object StrWithAlign extends StrWithAlign0 {
     implicit class StrWithAlignOps(private val swa: StrWithAlign) {
@@ -26,15 +35,6 @@ abstract class TabularPackage {
         case rs: RString => rs.align
       }
     }
-  }
-
-  final class LString(val string: String) extends StrWithAlign {
-    def align = LAlign
-    def canEqual(that: Any): Boolean = that.isInstanceOf[LString]
-  }
-  final class RString(val string: String) extends StrWithAlign {
-    def align = RAlign
-    def canEqual(that: Any): Boolean = that.isInstanceOf[RString]
   }
 
   implicit class AnyWithTextAlign[A](private val x: A) {
@@ -54,8 +54,7 @@ abstract class TabularPackage {
         def renderLines = {
           def widths = cols map (_ map (_.length) max)
           def aligns = functions map (_(values.head).align)
-          def colFmts = (widths, aligns).zipped map ((width, align) => align alignBy width)
-          val rowFormat = colFmts mkString " "
+          val rowFormat = (widths, aligns).zipped map ((width, align) => align alignBy width) mkString " "
           rows map (row => rowFormat.format(row: _*))
         }
         renderLines mkString "\n"
