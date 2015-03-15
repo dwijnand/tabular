@@ -2,6 +2,8 @@ package net.mox9
 
 import scala.language.implicitConversions
 
+package tabular {
+
 // TODO: Add AnyVals back
 abstract class TabularPackage {
   type ->[+A, +B] = Product2[A, B]
@@ -63,6 +65,8 @@ abstract class TabularPackage {
   implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) {
     def showkvs(sep: String = ", "): String = xs showkv (_ mkString sep)
   }
+}
+
 }
 
 package object tabular extends TabularPackage
