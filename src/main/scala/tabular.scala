@@ -17,10 +17,8 @@ abstract class TabularPackage {
   final class LString(string: String) extends StrWithAlignImpl(string, LAlign) with StrWithAlign
   final class RString(string: String) extends StrWithAlignImpl(string, RAlign) with StrWithAlign
 
-  trait StrWithAlign0 {
+  object StrWithAlign {
     implicit def liftAny[A](x: A): StrWithAlign = x.lj
-  }
-  object StrWithAlign extends StrWithAlign0 {
     implicit class StrWithAlignOps(private val swa: StrWithAlign) {
       def str: String = swa match {
         case ls: LString => ls.string
