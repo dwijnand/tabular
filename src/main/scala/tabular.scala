@@ -37,9 +37,9 @@ abstract class TabularPackage {
     def canEqual(that: Any): Boolean = that.isInstanceOf[RString]
   }
 
-  implicit class StringWithTextAlign(private val s: String) {
-    def lj = new LString(s)
-    def rj = new RString(s)
+  implicit class AnyWithTextAlign[A](private val x: A) {
+    def lj = new LString(x.toString)
+    def rj = new RString(x.toString)
   }
 
   implicit class TraversableW[A](private val xs: Traversable[A]) {
