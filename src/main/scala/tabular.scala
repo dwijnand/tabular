@@ -7,8 +7,8 @@ abstract class TabularPackage {
   type ->[+A, +B] = Product2[A, B]
 
   sealed trait TextAlign extends Any { def alignBy(width: Int): String }
-  case object LAlign extends TextAlign { def alignBy(width: Int) = leftFmt(width) }
-  case object RAlign extends TextAlign { def alignBy(width: Int) = rightFmt(width) }
+  case object LAlign extends TextAlign { def alignBy(width: Int) = if (width == 0) "%s" else s"%-${width}s" }
+  case object RAlign extends TextAlign { def alignBy(width: Int) = if (width == 0) "%s" else s"%${width}s" }
 
   sealed trait StrWithAlign
   class StrWithAlignImpl(val string: String, val align: TextAlign)
@@ -68,9 +68,6 @@ abstract class TabularPackage {
   implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) {
     def showkvs(sep: String = ", "): String = xs showkv (_ mkString sep)
   }
-
-  def leftFmt(i: Int) = if (i == 0) "%s" else s"%-${i}s"
-  def rightFmt(i: Int) = if (i == 0) "%s" else s"%${i}s"
 }
 
 package object tabular extends TabularPackage
