@@ -2,12 +2,25 @@ package net.mox9
 
 // TODO: Add AnyVals back
 abstract class TabularPackage {
-  type ->[+A, +B]   = Product2[A, B]
-  type StrWithAlign = String -> TextAlign
+  type ->[+A, +B] = Product2[A, B]
 
   sealed trait TextAlign extends Any { def alignBy(width: Int): String }
   case object LAlign extends TextAlign { def alignBy(width: Int) = leftFmt(width) }
   case object RAlign extends TextAlign { def alignBy(width: Int) = rightFmt(width) }
+
+  sealed trait StrWithAlign
+  object StrWithAlign {
+    implicit class StrWithAlignOps(private val swa: StrWithAlign) {
+      def str: String = swa match {
+        case ls: LString => ls._1
+        case rs: RString => rs._1
+      }
+      def fmt: TextAlign = swa match {
+        case ls: LString => ls._2
+        case rs: RString => rs._2
+      }
+    }
+  }
 
   final class LString(val _1: String) extends StrWithAlign {
     def _2 = LAlign
@@ -24,17 +37,18 @@ abstract class TabularPackage {
   }
 
   implicit class TraversableW[A](private val xs: Traversable[A]) {
-    def tabular(fs: (A => String, TextAlign)*): String = {
+    def tabular(fs: (A => StrWithAlign)*): String = {
       if (xs.isEmpty || fs.isEmpty) ""
       else {
         val rows0 = xs.toVector
         val cols0 = fs.toVector
 
-        def cols = cols0 map (f => rows0 map (x => f._1(x)))
-        def rows = rows0 map (x => cols0 map (f => f._1(x)))
+        def rows = rows0 map (x => cols0 map (f => f(x).str))
+        def cols = cols0 map (f => rows0 map (x => f(x).str))
         def renderLines = {
           def maxWidths = cols map (_ map (_.length) max)
-          def colFmts = (cols0, maxWidths).zipped map ((col1, width) => col1._2 alignBy width)
+          def aligns = cols0 map (_(rows0.head).fmt)
+          def colFmts = (aligns, maxWidths).zipped map ((align, width) => align alignBy width)
           val rowFormat = colFmts mkString " "
           rows map (row => rowFormat.format(row: _*))
         }
