@@ -1,9 +1,13 @@
-import tabular._
+import net.mox9.tabular._
 
-case class Version(major: Int, minor: Int, patch: Int)
-case class GAV(g: String, a: String, v: Version)
+case class Ver(major: Int, minor: Int, patch: Int) {
+  override def toString = s"$major.$minor.$patch"
+}
+case class Dep(g: String, a: String, v: Ver) {
+  override def toString = s"$g % $a % $v"
+}
 
 val deps = Seq(
-  GAV("com.example.foo", "foo-server", Version(1, 2, 3)),
-  GAV("com.acme.bar", "bar-scala-sdk", Version(12, 0, 1))
+  Dep("com.example.foo", "foo-server", Ver(1, 2, 3)),
+  Dep("com.acme.bar", "bar-scala-sdk", Ver(12, 0, 1))
 )

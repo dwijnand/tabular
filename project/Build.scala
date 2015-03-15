@@ -5,7 +5,9 @@ import pre.SbtKit._
 
 object Build extends Build {
   val tabular = project in file(".") settings (
-    version in ThisBuild := "0.1-SNAPSHOT",
+    organization := "net.mox9.tabular",
+            name := "tabular",
+         version := "0.1-SNAPSHOT",
 
     licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
 

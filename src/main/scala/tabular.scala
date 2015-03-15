@@ -1,30 +1,29 @@
-package tabular {
+package net.mox9
 
-sealed trait TextAlign extends Any { def alignBy(width: Int): String }
-case object LAlign extends TextAlign { def alignBy(width: Int) = leftFmt(width) }
-case object RAlign extends TextAlign { def alignBy(width: Int) = rightFmt(width) }
-
-final class LString(val _1: String) extends AnyVal with StrWithAlign {
-  def _2 = LAlign
-  def canEqual(that: Any): Boolean = that.isInstanceOf[LString]
-}
-final class RString(val _1: String) extends AnyVal with StrWithAlign {
-  def _2 = RAlign
-  def canEqual(that: Any): Boolean = that.isInstanceOf[RString]
-}
-
-}
-
-package object tabular {
+// TODO: Add AnyVals back
+abstract class TabularPackage {
   type ->[+A, +B]   = Product2[A, B]
   type StrWithAlign = String -> TextAlign
 
-  implicit class StringWithTextAlign(private val s: String) extends AnyVal {
+  sealed trait TextAlign extends Any { def alignBy(width: Int): String }
+  case object LAlign extends TextAlign { def alignBy(width: Int) = leftFmt(width) }
+  case object RAlign extends TextAlign { def alignBy(width: Int) = rightFmt(width) }
+
+  final class LString(val _1: String) extends StrWithAlign {
+    def _2 = LAlign
+    def canEqual(that: Any): Boolean = that.isInstanceOf[LString]
+  }
+  final class RString(val _1: String) extends StrWithAlign {
+    def _2 = RAlign
+    def canEqual(that: Any): Boolean = that.isInstanceOf[RString]
+  }
+
+  implicit class StringWithTextAlign(private val s: String) {
     def lj = new LString(s)
     def rj = new RString(s)
   }
 
-  implicit class TraversableW[A](private val xs: Traversable[A]) extends AnyVal {
+  implicit class TraversableW[A](private val xs: Traversable[A]) {
     def tabular(fs: (A => String, TextAlign)*): String = {
       if (xs.isEmpty || fs.isEmpty) ""
       else {
@@ -44,7 +43,7 @@ package object tabular {
     }
   }
 
-  implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) extends AnyVal {
+  implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) {
     def kvFormat = rightFmt(xs map (_._1.toString.length) max) + ": %s"
 
     def showkv(vShow: V => String = _.toString): String = {
@@ -53,10 +52,12 @@ package object tabular {
     }
   }
 
-  implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) extends AnyVal {
+  implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) {
     def showkvs(sep: String = ", "): String = xs showkv (_ mkString sep)
   }
 
   def leftFmt(i: Int) = if (i == 0) "%s" else s"%-${i}s"
   def rightFmt(i: Int) = if (i == 0) "%s" else s"%${i}s"
 }
+
+package object tabular extends TabularPackage
