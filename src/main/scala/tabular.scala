@@ -1,5 +1,7 @@
 package net.mox9
 
+import scala.language.implicitConversions
+
 // TODO: Add AnyVals back
 abstract class TabularPackage {
   type ->[+A, +B] = Product2[A, B]
@@ -9,7 +11,11 @@ abstract class TabularPackage {
   case object RAlign extends TextAlign { def alignBy(width: Int) = rightFmt(width) }
 
   sealed trait StrWithAlign
-  object StrWithAlign {
+
+  trait StrWithAlign0 {
+    implicit def liftAny[A](x: A): StrWithAlign = x.toString.lj
+  }
+  object StrWithAlign extends StrWithAlign0 {
     implicit class StrWithAlignOps(private val swa: StrWithAlign) {
       def str: String = swa match {
         case ls: LString => ls._1
