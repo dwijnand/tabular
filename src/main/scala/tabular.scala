@@ -3,14 +3,9 @@ package net.mox9
 import scala.language.implicitConversions
 
 package tabular {
-
-// TODO: Add AnyVals back
-abstract class TabularPackage {
-  type ->[+A, +B] = Product2[A, B]
-
   sealed trait TextAlign extends Any { def alignBy(width: Int): String }
-  case object LAlign extends TextAlign { def alignBy(width: Int) = if (width == 0) "%s" else s"%-${width}s" }
-  case object RAlign extends TextAlign { def alignBy(width: Int) = if (width == 0) "%s" else s"%${width}s" }
+  case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
+  case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
 
   sealed trait StrWithAlign
   sealed class StrWithAlignImpl(val string: String, val align: TextAlign)
@@ -34,13 +29,25 @@ abstract class TabularPackage {
       }
     }
   }
+}
 
-  implicit class AnyWithTextAlign[A](private val x: A) {
+package object tabular {
+  type ->[+A, +B] = Product2[A, B]
+
+  def lalign(width: Int): String = if (width == 0) "%s" else s"%-${width}s"
+  def ralign(width: Int): String = if (width == 0) "%s" else s"%${width}s"
+
+  implicit class IntWithAlign(private val x: Int) extends AnyVal {
+    def lalign: String = tabular.lalign(x)
+    def ralign: String = tabular.ralign(x)
+  }
+
+  implicit class AnyWithTextAlign[A](private val x: A) extends AnyVal {
     def lj = new LString(x.toString)
     def rj = new RString(x.toString)
   }
 
-  implicit class TraversableW[A](private val xs: Traversable[A]) {
+  implicit class TraversableW[A](private val xs: Traversable[A]) extends AnyVal {
     def tabular(columns: (A => StrWithAlign)*): String = {
       if (xs.isEmpty || columns.isEmpty) ""
       else {
@@ -60,7 +67,7 @@ abstract class TabularPackage {
     }
   }
 
-  implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) {
+  implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) extends AnyVal {
     def showkv(implicit vShow: V => String = _.toString): String =
       xs tabular (_._1.rj + ":", kv => vShow(kv._2))
   }
@@ -70,7 +77,3 @@ abstract class TabularPackage {
       xs showkv mvShow
   }
 }
-
-}
-
-package object tabular extends TabularPackage
