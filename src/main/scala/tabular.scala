@@ -8,26 +8,24 @@ package tabular {
   case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
 
   sealed trait StrWithAlign extends Any
-  class LString(val string: String) extends AnyVal with StrWithAlign {
+  sealed trait StrWithAlignImpl extends Any with StrWithAlign {
+    def string: String
+    def align: TextAlign
+  }
+  class LString(val string: String) extends AnyVal with StrWithAlignImpl {
     def align = LAlign
     def +(s: String) = new LString(string + s)
   }
-  class RString(val string: String) extends AnyVal with StrWithAlign {
+  class RString(val string: String) extends AnyVal with StrWithAlignImpl {
     def align = RAlign
     def +(s: String) = new RString(string + s)
   }
 
   object StrWithAlign {
     implicit def liftAny[A](x: A): StrWithAlign = x.lj
-    implicit class StrWithAlignOps(private val swa: StrWithAlign) {
-      def str: String = swa match {
-        case ls: LString => ls.string
-        case rs: RString => rs.string
-      }
-      def align: TextAlign = swa match {
-        case ls: LString => ls.align
-        case rs: RString => rs.align
-      }
+    implicit class StrWithAlignOps(private val swa: StrWithAlign) extends AnyVal {
+      def str: String      = swa match { case swai: StrWithAlignImpl => swai.string }
+      def align: TextAlign = swa match { case swai: StrWithAlignImpl => swai.align  }
     }
   }
 }
