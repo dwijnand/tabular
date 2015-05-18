@@ -7,12 +7,13 @@ package tabular {
   case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
   case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
 
-  sealed trait StrWithAlign
-  sealed class StrWithAlignImpl(val string: String, val align: TextAlign)
-  final class LString(string: String) extends StrWithAlignImpl(string, LAlign) with StrWithAlign {
+  sealed trait StrWithAlign extends Any
+  class LString(val string: String) extends AnyVal with StrWithAlign {
+    def align = LAlign
     def +(s: String) = new LString(string + s)
   }
-  final class RString(string: String) extends StrWithAlignImpl(string, RAlign) with StrWithAlign {
+  class RString(val string: String) extends AnyVal with StrWithAlign {
+    def align = RAlign
     def +(s: String) = new RString(string + s)
   }
 
