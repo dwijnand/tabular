@@ -10,25 +10,22 @@ package tabular {
   // Split name from properties, so auto-lifting is only by type name, not by method
   // Then auto-lift this trait to give it methods, works because implicit conversions don't chain
   sealed trait StrWithAlign extends Any
-  sealed trait StrWithAlignImpl extends Any with StrWithAlign {
+  sealed trait StrWithAlignOps extends Any with StrWithAlign {
     def str: String
     def align: TextAlign
   }
-  class LString(val str: String) extends AnyVal with StrWithAlignImpl {
+  class LString(val str: String) extends AnyVal with StrWithAlignOps {
     def align = LAlign
     def +(s: String) = new LString(str + s)
   }
-  class RString(val str: String) extends AnyVal with StrWithAlignImpl {
+  class RString(val str: String) extends AnyVal with StrWithAlignOps {
     def align = RAlign
     def +(s: String) = new RString(str + s)
   }
 
   object StrWithAlign {
     implicit def liftAny[A](x: A): StrWithAlign = x.lj
-    implicit class StrWithAlignOps(private val swa: StrWithAlign) extends AnyVal {
-      def str: String      = swa match { case swai: StrWithAlignImpl => swai.str   }
-      def align: TextAlign = swa match { case swai: StrWithAlignImpl => swai.align }
-    }
+    implicit def liftOps(swa: StrWithAlign): StrWithAlignOps = swa match { case swao: StrWithAlignOps => swao }
   }
 }
 
