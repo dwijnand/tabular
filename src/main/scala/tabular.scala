@@ -11,23 +11,23 @@ package tabular {
   // Then auto-lift this trait to give it methods, works because implicit conversions don't chain
   sealed trait StrWithAlign extends Any
   sealed trait StrWithAlignImpl extends Any with StrWithAlign {
-    def string: String
+    def str: String
     def align: TextAlign
   }
-  class LString(val string: String) extends AnyVal with StrWithAlignImpl {
+  class LString(val str: String) extends AnyVal with StrWithAlignImpl {
     def align = LAlign
-    def +(s: String) = new LString(string + s)
+    def +(s: String) = new LString(str + s)
   }
-  class RString(val string: String) extends AnyVal with StrWithAlignImpl {
+  class RString(val str: String) extends AnyVal with StrWithAlignImpl {
     def align = RAlign
-    def +(s: String) = new RString(string + s)
+    def +(s: String) = new RString(str + s)
   }
 
   object StrWithAlign {
     implicit def liftAny[A](x: A): StrWithAlign = x.lj
     implicit class StrWithAlignOps(private val swa: StrWithAlign) extends AnyVal {
-      def str: String      = swa match { case swai: StrWithAlignImpl => swai.string }
-      def align: TextAlign = swa match { case swai: StrWithAlignImpl => swai.align  }
+      def str: String      = swa match { case swai: StrWithAlignImpl => swai.str   }
+      def align: TextAlign = swa match { case swai: StrWithAlignImpl => swai.align }
     }
   }
 }
