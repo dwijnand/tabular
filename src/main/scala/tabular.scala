@@ -22,7 +22,6 @@ package tabular {
     def align = RAlign
     def +(s: String) = new RString(str + s)
   }
-
   object StrWithAlign {
     implicit def liftAny[A](x: A): StrWithAlign = x.lj
     implicit def liftOps(swa: StrWithAlign): StrWithAlignOps = swa match { case swao: StrWithAlignOps => swao }
