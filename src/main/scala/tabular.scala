@@ -7,6 +7,8 @@ package tabular {
   case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
   case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
 
+  // Split name from properties, so auto-lifting is only by type name, not by method
+  // Then auto-lift this trait to give it methods, works because implicit conversions don't chain
   sealed trait StrWithAlign extends Any
   sealed trait StrWithAlignImpl extends Any with StrWithAlign {
     def string: String
