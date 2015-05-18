@@ -32,12 +32,12 @@ package tabular {
 package object tabular {
   type ->[+A, +B] = Product2[A, B]
 
-  @inline def lalign(width: Int): String = if (width == 0) "%s" else s"%-${width}s"
-  @inline def ralign(width: Int): String = if (width == 0) "%s" else s"%${width}s"
+  @inline def lalign(width: Int): String = width.lalign
+  @inline def ralign(width: Int): String = width.ralign
 
   implicit class IntWithAlign(private val x: Int) extends AnyVal {
-    @inline def lalign: String = tabular.lalign(x)
-    @inline def ralign: String = tabular.ralign(x)
+    @inline def lalign: String = if (x == 0) "%s" else s"%-${x}s"
+    @inline def ralign: String = if (x == 0) "%s" else s"%${x}s"
   }
 
   implicit class AnyWithTextAlign[A](private val x: A) extends AnyVal {
