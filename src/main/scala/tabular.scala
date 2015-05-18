@@ -9,7 +9,7 @@ package tabular {
 
   // Split name from properties, so auto-lifting is only by type name, not by method
   // Then auto-lift this trait to give it methods, works because implicit conversions don't chain
-  sealed trait StrWithAlign extends Any
+  sealed trait StrWithAlign    extends Any
   sealed trait StrWithAlignOps extends Any with StrWithAlign {
     def str: String
     def align: TextAlign
