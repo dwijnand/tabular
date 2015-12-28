@@ -1,7 +1,7 @@
 import scala.language.implicitConversions
 
 import sbt._, Keys._
-import pre.SbtKit._
+import SbtKitPre._
 
 object Build extends Build {
   val tabular = project in file(".") settings (
