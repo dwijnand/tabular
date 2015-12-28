@@ -1,34 +1,30 @@
-package net.mox9
+package net.mox9.tabular
 
-import scala.language.implicitConversions
+sealed trait TextAlign extends Any   { def alignBy(width: Int): String }
+case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
+case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
 
-package tabular {
-  sealed trait TextAlign extends Any   { def alignBy(width: Int): String }
-  case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
-  case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
-
-  // Split name from properties, so auto-lifting is only by type name, not by method
-  // Then auto-lift this trait to give it methods, works because implicit conversions don't chain
-  sealed trait StrWithAlign    extends Any
-  sealed trait StrWithAlignOps extends Any with StrWithAlign {
-    def str: String
-    def align: TextAlign
-  }
-  class LString(val str: String) extends AnyVal with StrWithAlignOps {
-    def align = LAlign
-    def +(s: String) = new LString(str + s)
-  }
-  class RString(val str: String) extends AnyVal with StrWithAlignOps {
-    def align = RAlign
-    def +(s: String) = new RString(str + s)
-  }
-  object StrWithAlign {
-    implicit def liftAny[A](x: A): StrWithAlign = x.lj
-    implicit def liftOps(swa: StrWithAlign): StrWithAlignOps = swa match { case swao: StrWithAlignOps => swao }
-  }
+// Split name from properties, so auto-lifting is only by type name, not by method
+// Then auto-lift this trait to give it methods, works because implicit conversions don't chain
+sealed trait StrWithAlign    extends Any
+sealed trait StrWithAlignOps extends Any with StrWithAlign {
+  def str: String
+  def align: TextAlign
+}
+class LString(val str: String) extends AnyVal with StrWithAlignOps {
+  def align = LAlign
+  def +(s: String) = new LString(str + s)
+}
+class RString(val str: String) extends AnyVal with StrWithAlignOps {
+  def align = RAlign
+  def +(s: String) = new RString(str + s)
+}
+object StrWithAlign {
+  implicit def liftAny[A](x: A): StrWithAlign = x.lj
+  implicit def liftOps(swa: StrWithAlign): StrWithAlignOps = swa match { case swao: StrWithAlignOps => swao }
 }
 
-package object tabular {
+object `package` {
   type ->[+A, +B] = Product2[A, B]
 
   implicit class IntWithAlign(private val x: Int) extends AnyVal {
