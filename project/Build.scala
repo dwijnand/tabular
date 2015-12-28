@@ -5,7 +5,7 @@ import pre.SbtKit._
 
 object Build extends Build {
   val tabular = project in file(".") settings (
-    organization := "net.mox9.tabular",
+    organization := "com.dwijnand",
             name := "tabular",
          version := "0.1-SNAPSHOT",
 
