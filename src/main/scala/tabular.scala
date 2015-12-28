@@ -24,7 +24,40 @@ object StrWithAlign {
   implicit def liftOps(swa: StrWithAlign): StrWithAlignOps = swa match { case swao: StrWithAlignOps => swao }
 }
 
-object `package` {
+trait Tabular {
+  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                  : TravOnceWithMaxOpt[A]    = new TravOnceWithMaxOpt[A](xs)
+  implicit def travKVWithTabular[K, V](xs: Traversable[(K, V)])               : TravKVWithTabular[K, V]  = new TravKVWithTabular[K, V](xs)
+  implicit def travKVsWithTabular[K, V](xs: Traversable[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = new TravKVsWithTabular[K, V](xs)
+}
+
+final class TravOnceWithMaxOpt[A](private val xs: TraversableOnce[A]) extends AnyVal {
+  def maxOpt[B >: A](implicit cmp: Ordering[B]): Option[B] = if (xs.isEmpty) None else Some(xs max cmp)
+}
+
+final class TravKVWithTabular[K, V](private val xs: Traversable[(K, V)]) extends AnyVal {
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.ToString")) // tabularisation is excused
+  def maxKeyLen = xs.toIterator.map(_._1.toString.length).maxOpt
+  def tabularkv = {
+    xs.maxKeyLen.fold(Nil: Traversable[String]) { len =>
+      val fmt = s"%${len}s %s"
+      xs map (kv => fmt format(kv._1, kv._2))
+    }
+  }
+  def showkv() = tabularkv foreach println
+}
+
+final class TravKVsWithTabular[K, V](private val xs: Traversable[(K, Traversable[V])]) extends AnyVal {
+  def tabularkvs = {
+    xs.maxKeyLen.fold(Nil: Traversable[String]) { len =>
+      val fmt = s"%${len}s %s"
+      def showVs(vs: Traversable[V]) = if (vs.size == 1) vs.head else vs.mkString("[", ", ", "]")
+      xs map (kv => fmt format(kv._1, showVs(kv._2)))
+    }
+  }
+  def showkvs() = tabularkvs foreach println
+}
+
+object `package` extends Tabular {
   type ->[+A, +B] = Product2[A, B]
 
   implicit class IntWithAlign(private val x: Int) extends AnyVal {
@@ -67,5 +100,9 @@ object `package` {
   implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) {
     def showkvs(implicit mvShow: Traversable[V] => String = _ mkString ", "): String =
       xs showkv mvShow
+  }
+
+  implicit class AnyWith_>>[A](private val x: A) extends AnyVal {
+    def >>() = println(x)
   }
 }
