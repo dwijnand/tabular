@@ -1,3 +1,5 @@
+def Settings(settings: SettingsDefinition*): Seq[Setting[_]] = settings flatMap (_.settings)
+
 val tabular = project in file(".")
 
 organization := "com.dwijnand"
@@ -53,8 +55,12 @@ fork in run := true
 connectInput in run := true
 cancelable in Global := true
 
-sources in (Compile, doc) := Nil
-publishArtifact in (Compile, packageDoc) := false
+val noDocs = Settings(sources in (Compile, doc) := Nil, publishArtifact in (Compile, packageDoc) := false)
+val noPackage = Settings(Keys.`package` := file(""), packageBin := file(""), packagedArtifacts := Map())
+val noPublish = Settings(publish := (), publishLocal := (), publishArtifact := false)
+val noArtifacts = Settings(noPackage, noPublish)
+
+noDocs
 
 watchSources ++= (baseDirectory.value * "*.sbt").get
 watchSources ++= (baseDirectory.value / "project" * "*.scala").get
