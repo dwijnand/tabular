@@ -29,6 +29,21 @@ scalacOptions  += "-Ywarn-value-discard"
 scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
 scalacOptions in (Test,    console) -= "-Ywarn-unused-import"
 
+wartremoverWarnings ++= Warts.unsafe
+wartremoverWarnings  += Wart.Enumeration
+wartremoverWarnings  += Wart.ExplicitImplicitTypes
+wartremoverWarnings  += Wart.FinalCaseClass
+wartremoverWarnings  += Wart.JavaConversions
+wartremoverWarnings  += Wart.MutableDataStructures
+wartremoverWarnings  += Wart.NoNeedForMonad
+wartremoverWarnings  += Wart.Option2Iterable
+wartremoverWarnings  += Wart.ToString
+wartremoverWarnings  -= Wart.Any                    // bans f-interpolator #158
+wartremoverWarnings  -= Wart.DefaultArguments
+wartremoverWarnings  -= Wart.NonUnitStatements      // bans this.type #118
+wartremoverWarnings  -= Wart.Product
+wartremoverWarnings  -= Wart.Serializable
+wartremoverWarnings  -= Wart.Throw
 
 initialCommands in console += "\n" + IO.read((resourceDirectory in Compile).value / "initialCommands.scala")
 
