@@ -24,6 +24,7 @@ scalacOptions  += "-Yinline-warnings"
 scalacOptions  += "-Yno-adapted-args"
 scalacOptions  += "-Ywarn-dead-code" // WARN: Too many ???s cause false positives!
 scalacOptions  += "-Ywarn-numeric-widen"
+scalacOptions  += "-Ywarn-unused"
 scalacOptions  += "-Ywarn-unused-import"
 scalacOptions  += "-Ywarn-value-discard"
 
