@@ -129,3 +129,27 @@ trait ShowEach {
 //  implicit def showArray[A: Show] : Show[Array[A]]                            = ShowBy.showBy[Array[A]](_.toVec)
   implicit def showJavaEnum[A <: java.lang.Enum[A]] : Show[java.lang.Enum[A]] = Show.inheritShow
 }
+
+package hcn {
+  import scala.collection.convert._
+  object PackageObject extends DecorateAsScala with DecorateAsJava with scala.io.AnsiColor {
+    implicit class CStringOps(val s: String) extends AnyVal {
+      private def bold(color: String): String = BOLD + color + s + RESET
+      private def in(color: String): String   = color + s + RESET
+
+      def inRed: String     = bold(RED)
+      def inGreen: String   = bold(GREEN)
+      def inCyan: String    = bold(CYAN)
+      def inMagenta: String = bold(MAGENTA)
+      def inBlue: String    = bold(BLUE)
+      def inYellow: String  = bold(YELLOW)
+
+      def bgRed: String     = in(RED_B)
+      def bgGreen: String   = in(GREEN_B)
+      def bgCyan: String    = in(CYAN_B)
+      def bgMagenta: String = in(MAGENTA_B)
+      def bgBlue: String    = in(BLUE_B)
+      def bgYellow: String  = in(YELLOW_B)
+    }
+  }
+}
