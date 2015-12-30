@@ -153,3 +153,17 @@ package hcn {
     }
   }
 }
+
+package hhh {
+  sealed trait ConfigValue
+  sealed trait ConfigMap { def map: Map[Key, ConfigValue] }
+  final case class Key(value: String)
+  final case class Entry(k: Key, v: ConfigValue) { def width = k.value.length }
+
+  implicit class ConfigMapOps(map: ConfigMap) {
+    lazy val maxWidth: Int = entries map (_.width) max
+    def formattedEntries: Vector[String] = entries map format
+    def entries: Vector[Entry]           = for ((k, v) <- map.map.toVector.sortBy(_._1.value)) yield Entry(k, v)
+    def format(e: Entry): String         = "%s%s: %s".format(" " * (maxWidth - e.width), e.k, e.v)
+  }
+}
