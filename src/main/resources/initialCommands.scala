@@ -1,4 +1,4 @@
-import net.mox9.tabular._
+import tabular._
 
 val m = scala.collection.immutable.ListMap(
      "a" -> 1,
