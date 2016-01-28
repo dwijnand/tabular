@@ -58,11 +58,11 @@ trait Tabular {
 
 object `package` extends Tabular {
   implicit class IntWithAlign(private val x: Int) extends AnyVal {
-    @inline def lalign: String = if (x == 0) "%s" else s"%-${x}s"
-    @inline def ralign: String = if (x == 0) "%s" else s"%${x}s"
+    def lalign: String = if (x == 0) "%s" else s"%-${x}s"
+    def ralign: String = if (x == 0) "%s" else s"%${x}s"
   }
-  @inline def lalign(width: Int): String = width.lalign
-  @inline def ralign(width: Int): String = width.ralign
+  def lalign(width: Int): String = width.lalign
+  def ralign(width: Int): String = width.ralign
 
   implicit class AnyWithTextAlign[A](private val x: A) extends AnyVal {
     def lj = new LString(x.toString)
