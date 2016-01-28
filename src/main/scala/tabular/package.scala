@@ -4,8 +4,8 @@ sealed trait TextAlign extends Any   { def alignBy(width: Int): String }
 case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
 case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
 
-// Split name from properties, so auto-lifting is only by type name, not by method
-// Then auto-lift this trait to give it methods, works because implicit conversions don't chain
+// Enables having an implicit conversion for Any without enriching Any with these methods
+// Works because implicit conversions don't chain
 sealed trait StrWithAlign    extends Any
 sealed trait StrWithAlignOps extends Any with StrWithAlign {
   def str: String
@@ -21,7 +21,7 @@ class RString(val str: String) extends AnyVal with StrWithAlignOps {
 }
 object StrWithAlign {
   implicit def liftAny[A](x: A): StrWithAlign = x.lj
-  implicit def liftOps(swa: StrWithAlign): StrWithAlignOps = swa match { case swao: StrWithAlignOps => swao }
+  implicit def liftOps(x: StrWithAlign): StrWithAlignOps = x match { case y: StrWithAlignOps => y }
 }
 
 trait Tabular {
