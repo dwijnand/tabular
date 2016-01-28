@@ -35,7 +35,6 @@ final class TravOnceWithMaxOpt[A](private val xs: TraversableOnce[A]) extends An
 }
 
 final class TravKVWithTabular[K, V](private val xs: Traversable[(K, V)]) extends AnyVal {
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.ToString")) // tabularisation is excused
   def maxKeyLen = xs.toIterator.map(_._1.toString.length).maxOpt
   def tabularkv = {
     xs.maxKeyLen.fold(Nil: Traversable[String]) { len =>
