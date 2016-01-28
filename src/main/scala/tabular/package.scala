@@ -103,9 +103,6 @@ final case class AnyWith_>>[A](private val x: A) extends AnyVal {
 object `package` extends Tabular {
   implicit def intWithAlign(x: Int): IntWithAlign = new IntWithAlign(x)
 
-  def lalign(width: Int): String = width.lalign
-  def ralign(width: Int): String = width.ralign
-
   implicit def anyWithTextAlign[A](x: A): AnyWithTextAlign[A] = new AnyWithTextAlign[A](x)
 
   implicit def traversableW[A](xs: Traversable[A]): TraversableW[A] = new TraversableW[A](xs)
