@@ -28,26 +28,28 @@ final case class TravOnceWithMaxOpt[A](private val xs: TraversableOnce[A]) exten
   def maxOpt[B >: A](implicit cmp: Ordering[B]): Option[B] = if (xs.isEmpty) None else Some(xs max cmp)
 }
 
+// TODO: Consider making these return xs.types
+
 final case class TravKVWithTabular[K, V](private val xs: Traversable[(K, V)]) extends AnyVal {
-  def maxKeyLen = xs.toIterator.map(_._1.toString.length).maxOpt
-  def tabularkv = {
+  def maxKeyLen: Option[Int] = xs.toIterator.map(_._1.toString.length).maxOpt
+  def tabularkv: Traversable[String] = {
     xs.maxKeyLen.fold(Nil: Traversable[String]) { len =>
       val fmt = s"%${len}s %s"
       xs map (kv => fmt format(kv._1, kv._2))
     }
   }
-  def showkv() = tabularkv foreach println
+  def showkv(): Unit = tabularkv foreach println
 }
 
 final case class TravKVsWithTabular[K, V](private val xs: Traversable[(K, Traversable[V])]) extends AnyVal {
-  def tabularkvs = {
+  def tabularkvs: Traversable[String] = {
     xs.maxKeyLen.fold(Nil: Traversable[String]) { len =>
       val fmt = s"%${len}s %s"
       def showVs(vs: Traversable[V]) = if (vs.size == 1) vs.head else vs.mkString("[", ", ", "]")
       xs map (kv => fmt format(kv._1, showVs(kv._2)))
     }
   }
-  def showkvs() = tabularkvs foreach println
+  def showkvs(): Unit = tabularkvs foreach println
 }
 
 trait Tabular {
@@ -62,8 +64,8 @@ final case class IntWithAlign(private val x: Int) extends AnyVal {
 }
 
 final case class AnyWithTextAlign[A](private val x: A) extends AnyVal {
-  def lj = new LString(x.toString)
-  def rj = new RString(x.toString)
+  def lj: LString = new LString(x.toString)
+  def rj: RString = new RString(x.toString)
 }
 
 final case class TraversableW[A](private val xs: Traversable[A]) extends AnyVal {
@@ -87,13 +89,11 @@ final case class TraversableW[A](private val xs: Traversable[A]) extends AnyVal 
 }
 
 final case class TraversableKVW[K, V](private val xs: Traversable[(K, V)]) extends AnyVal {
-  def showkv(implicit vShow: V => String = _.toString): String =
-    xs tabular (_._1.rj + ":", kv => vShow(kv._2))
+  def showkv(implicit vShow: V => String = _.toString): String = xs tabular (_._1.rj + ":", kv => vShow(kv._2))
 }
 
 final case class TraversableKMVW[K, V](private val xs: Traversable[(K, Traversable[V])]) extends AnyVal {
-  def showkvs(implicit mvShow: Traversable[V] => String = _ mkString ", "): String =
-    xs showkv mvShow
+  def showkvs(implicit mvShow: Traversable[V] => String = _ mkString ", "): String = xs showkv mvShow
 }
 
 final case class AnyWith_>>[A](private val x: A) extends AnyVal {
