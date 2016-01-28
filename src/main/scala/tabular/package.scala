@@ -1,29 +1,5 @@
 package tabular
 
-sealed trait TextAlign extends Any   { def alignBy(width: Int): String }
-case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
-case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
-
-// Enables having an implicit conversion for Any without enriching Any with these methods
-// Works because implicit conversions don't chain
-sealed trait StrWithAlign    extends Any
-sealed trait StrWithAlignOps extends Any with StrWithAlign {
-  def str: String
-  def align: TextAlign
-}
-final case class LString(val str: String) extends AnyVal with StrWithAlignOps {
-  def align = LAlign
-  def +(s: String) = new LString(str + s)
-}
-final case class RString(val str: String) extends AnyVal with StrWithAlignOps {
-  def align = RAlign
-  def +(s: String) = new RString(str + s)
-}
-object StrWithAlign {
-  implicit def liftAny[A](x: A): StrWithAlign = x.lj
-  implicit def liftOps(x: StrWithAlign): StrWithAlignOps = x match { case y: StrWithAlignOps => y }
-}
-
 final case class TravOnceWithMaxOpt[A](private val xs: TraversableOnce[A]) extends AnyVal {
   def maxOpt[B >: A](implicit cmp: Ordering[B]): Option[B] = if (xs.isEmpty) None else Some(xs max cmp)
 }
@@ -52,22 +28,6 @@ final case class TravKVsWithTabular[K, V](private val xs: Traversable[(K, Traver
   def showkvs(): Unit = tabularkvs foreach println
 }
 
-trait Tabular {
-  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                  : TravOnceWithMaxOpt[A]    = TravOnceWithMaxOpt[A](xs)
-  implicit def travKVWithTabular[K, V](xs: Traversable[(K, V)])               : TravKVWithTabular[K, V]  = TravKVWithTabular[K, V](xs)
-  implicit def travKVsWithTabular[K, V](xs: Traversable[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = TravKVsWithTabular[K, V](xs)
-}
-
-final case class IntWithAlign(private val x: Int) extends AnyVal {
-  def lalign: String = if (x == 0) "%s" else s"%-${x}s"
-  def ralign: String = if (x == 0) "%s" else s"%${x}s"
-}
-
-final case class AnyWithTextAlign[A](private val x: A) extends AnyVal {
-  def lj: LString = new LString(x.toString)
-  def rj: RString = new RString(x.toString)
-}
-
 final case class TraversableW[A](private val xs: Traversable[A]) extends AnyVal {
   def tabular(columns: (A => StrWithAlign)*): String = {
     if (xs.isEmpty || columns.isEmpty) ""
@@ -94,10 +54,6 @@ final case class TraversableKVW[K, V](private val xs: Traversable[(K, V)]) exten
 
 final case class TraversableKMVW[K, V](private val xs: Traversable[(K, Traversable[V])]) extends AnyVal {
   def showkvs(implicit mvShow: Traversable[V] => String = _ mkString ", "): String = xs showkv mvShow
-}
-
-final case class AnyWith_>>[A](private val x: A) extends AnyVal {
-  def >>() = println(x)
 }
 
 final case class ProductsWithTabular(private val xs: Traversable[Product]) extends AnyVal {
@@ -156,20 +112,26 @@ final case class MultimapWithTabular[K, V](private val xs: Traversable[(K, Trave
   def showKVs()  = tabularKVs foreach println
 }
 
+trait Tabular {
+  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                  : TravOnceWithMaxOpt[A]    = TravOnceWithMaxOpt[A](xs)
+  implicit def travKVWithTabular[K, V](xs: Traversable[(K, V)])               : TravKVWithTabular[K, V]  = TravKVWithTabular[K, V](xs)
+  implicit def travKVsWithTabular[K, V](xs: Traversable[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = TravKVsWithTabular[K, V](xs)
+}
+
+// TODO: Consider Product.showP
 object `package` extends Tabular {
   implicit def intWithAlign(x: Int): IntWithAlign = IntWithAlign(x)
 
   implicit def anyWithTextAlign[A](x: A): AnyWithTextAlign[A] = AnyWithTextAlign[A](x)
+
+  implicit def anyWithGreaterThanGreaterThan[A](x: A): AnyWithGreaterThanGreaterThan[A] = AnyWithGreaterThanGreaterThan[A](x)
+
 
   implicit def traversableW[A](xs: Traversable[A]): TraversableW[A] = TraversableW[A](xs)
 
   implicit def traversableKVW[K, V](xs: Traversable[(K, V)]): TraversableKVW[K, V] = TraversableKVW[K, V](xs)
 
   implicit def traversableKMVW[K, V](xs: Traversable[(K, Traversable[V])]): TraversableKMVW[K, V] = TraversableKMVW[K, V](xs)
-
-  implicit def anyWith_>>[A](x: A): AnyWith_>>[A] = AnyWith_>>[A](x)
-
-  // TODO: Consider Product.showP
 
   implicit def productsWithTabular(xs: Traversable[Product]): ProductsWithTabular = ProductsWithTabular(xs)
 
