@@ -57,8 +57,6 @@ final class TravKVsWithTabular[K, V](private val xs: Traversable[(K, Traversable
 }
 
 object `package` extends Tabular {
-  type ->[+A, +B] = Product2[A, B]
-
   implicit class IntWithAlign(private val x: Int) extends AnyVal {
     @inline def lalign: String = if (x == 0) "%s" else s"%-${x}s"
     @inline def ralign: String = if (x == 0) "%s" else s"%${x}s"
@@ -91,12 +89,12 @@ object `package` extends Tabular {
     }
   }
 
-  implicit class TraversableKVW[K, V](private val xs: Traversable[K -> V]) extends AnyVal {
+  implicit class TraversableKVW[K, V](private val xs: Traversable[(K, V)]) extends AnyVal {
     def showkv(implicit vShow: V => String = _.toString): String =
       xs tabular (_._1.rj + ":", kv => vShow(kv._2))
   }
 
-  implicit class TraversableKMVW[K, V](private val xs: Traversable[K -> Traversable[V]]) {
+  implicit class TraversableKMVW[K, V](private val xs: Traversable[(K, Traversable[V])]) {
     def showkvs(implicit mvShow: Traversable[V] => String = _ mkString ", "): String =
       xs showkv mvShow
   }
