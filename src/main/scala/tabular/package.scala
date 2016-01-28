@@ -24,12 +24,6 @@ object StrWithAlign {
   implicit def liftOps(x: StrWithAlign): StrWithAlignOps = x match { case y: StrWithAlignOps => y }
 }
 
-trait Tabular {
-  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                  : TravOnceWithMaxOpt[A]    = new TravOnceWithMaxOpt[A](xs)
-  implicit def travKVWithTabular[K, V](xs: Traversable[(K, V)])               : TravKVWithTabular[K, V]  = new TravKVWithTabular[K, V](xs)
-  implicit def travKVsWithTabular[K, V](xs: Traversable[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = new TravKVsWithTabular[K, V](xs)
-}
-
 final class TravOnceWithMaxOpt[A](private val xs: TraversableOnce[A]) extends AnyVal {
   def maxOpt[B >: A](implicit cmp: Ordering[B]): Option[B] = if (xs.isEmpty) None else Some(xs max cmp)
 }
@@ -54,6 +48,12 @@ final class TravKVsWithTabular[K, V](private val xs: Traversable[(K, Traversable
     }
   }
   def showkvs() = tabularkvs foreach println
+}
+
+trait Tabular {
+  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                  : TravOnceWithMaxOpt[A]    = new TravOnceWithMaxOpt[A](xs)
+  implicit def travKVWithTabular[K, V](xs: Traversable[(K, V)])               : TravKVWithTabular[K, V]  = new TravKVWithTabular[K, V](xs)
+  implicit def travKVsWithTabular[K, V](xs: Traversable[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = new TravKVsWithTabular[K, V](xs)
 }
 
 object `package` extends Tabular {
