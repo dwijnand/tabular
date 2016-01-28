@@ -53,9 +53,9 @@ final case class TravKVsWithTabular[K, V](private val xs: Traversable[(K, Traver
 }
 
 trait Tabular {
-  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                  : TravOnceWithMaxOpt[A]    = new TravOnceWithMaxOpt[A](xs)
-  implicit def travKVWithTabular[K, V](xs: Traversable[(K, V)])               : TravKVWithTabular[K, V]  = new TravKVWithTabular[K, V](xs)
-  implicit def travKVsWithTabular[K, V](xs: Traversable[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = new TravKVsWithTabular[K, V](xs)
+  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                  : TravOnceWithMaxOpt[A]    = TravOnceWithMaxOpt[A](xs)
+  implicit def travKVWithTabular[K, V](xs: Traversable[(K, V)])               : TravKVWithTabular[K, V]  = TravKVWithTabular[K, V](xs)
+  implicit def travKVsWithTabular[K, V](xs: Traversable[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = TravKVsWithTabular[K, V](xs)
 }
 
 final case class IntWithAlign(private val x: Int) extends AnyVal {
@@ -100,21 +100,7 @@ final case class AnyWith_>>[A](private val x: A) extends AnyVal {
   def >>() = println(x)
 }
 
-object `package` extends Tabular {
-  implicit def intWithAlign(x: Int): IntWithAlign = new IntWithAlign(x)
-
-  implicit def anyWithTextAlign[A](x: A): AnyWithTextAlign[A] = new AnyWithTextAlign[A](x)
-
-  implicit def traversableW[A](xs: Traversable[A]): TraversableW[A] = new TraversableW[A](xs)
-
-  implicit def traversableKVW[K, V](xs: Traversable[(K, V)]): TraversableKVW[K, V] = new TraversableKVW[K, V](xs)
-
-  implicit def traversableKMVW[K, V](xs: Traversable[(K, Traversable[V])]): TraversableKMVW[K, V] = new TraversableKMVW[K, V](xs)
-
-  implicit def anyWith_>>[A](x: A): AnyWith_>>[A] = new AnyWith_>>[A](x)
-
-  // TODO: Consider Product.showP
-
+final case class ProductsWithTabular(private val xs: Traversable[Product]) extends AnyVal {
   private def trimHeader(h: String): Int => String = {
     case i if i >= h.length => h
     case i if i > 5         => h.substring(0, i - 2) + ".."
@@ -122,52 +108,74 @@ object `package` extends Tabular {
     case _                  => h.substring(0, 1)
   }
 
-  implicit final class ProductsWithTabular(private val xs: Traversable[Product]) {
-    def tabularPs = {
-      xs.headOption match {
-        case None    => Nil
-        case Some(h) =>
-          val rows = xs.toVector map (_.productIterator.toVector map (_.toString))
-          val cols = (0 until h.productArity).toVector map (idx => xs map (_.productElement(idx).toString))
+  def tabularPs = {
+    xs.headOption match {
+      case None    => Nil
+      case Some(h) =>
+        val rows = xs.toVector map (_.productIterator.toVector map (_.toString))
+        val cols = (0 until h.productArity).toVector map (idx => xs map (_.productElement(idx).toString))
 
-          // TODO: deal with > 267 chars
-          val widths = cols map (col => col map (_.length) max)
+        // TODO: deal with > 267 chars
+        val widths = cols map (col => col map (_.length) max)
 
-          val headers0 = h.getClass.getDeclaredFields.toVector map (_.getName)
-          val headers = headers0 zip widths map Function.uncurried(trimHeader _).tupled
+        val headers0 = h.getClass.getDeclaredFields.toVector map (_.getName)
+        val headers = headers0 zip widths map Function.uncurried(trimHeader _).tupled
 
-          val rowFormat = widths map (_.ralign) mkString " "
-          (headers +: rows) map (row => rowFormat.format(row.seq: _*))
-      }
+        val rowFormat = widths map (_.ralign) mkString " "
+        (headers +: rows) map (row => rowFormat.format(row.seq: _*))
     }
-    def showPs()  = tabularPs foreach println
   }
+  def showPs()  = tabularPs foreach println
+}
 
-  implicit final class MatrixWithTabular[T](private val xss: Traversable[Traversable[T]]) {
-    def tabularM = {
-      val maxWidth = xss.toVector.foldLeft(0)((acc, x) => acc max x.size)
+final case class MatrixWithTabular[T](private val xss: Traversable[Traversable[T]]) extends AnyVal {
+  def tabularM = {
+    val maxWidth = xss.toVector.foldLeft(0)((acc, x) => acc max x.size)
 
-      val rows = xss.toVector map (_.toVector map (_.toString) padTo(maxWidth, ""))
+    val rows = xss.toVector map (_.toVector map (_.toString) padTo(maxWidth, ""))
 
-      val cols = (0 until maxWidth).toVector map (idx => xss map (_.toIndexedSeq.applyOrElse(idx, (_: Int) => "").toString))
+    val cols = (0 until maxWidth).toVector map (idx => xss map (_.toIndexedSeq.applyOrElse(idx, (_: Int) => "").toString))
 
-      val widths = cols map (col => col map (_.length) max)
+    val widths = cols map (col => col map (_.length) max)
 
-      val rowFormat = widths map (_.ralign) mkString " "
-      rows map (row => rowFormat.format(row.seq: _*))
-    }
-    def showM()  = tabularM foreach println
+    val rowFormat = widths map (_.ralign) mkString " "
+    rows map (row => rowFormat.format(row.seq: _*))
   }
+  def showM()  = tabularM foreach println
+}
 
-  implicit final class MapWithTabular[K, V](private val xs: Traversable[(K, V)]) {
-//    def maxKeyLen = xs.toIterator.map(_._1.toString.length).max
-    def tabularKV = xs map (kv => s"%${xs.maxKeyLen}s %s".format(kv._1, kv._2))
-    def showKV()  = tabularKV foreach println
-  }
+final case class MapWithTabular[K, V](private val xs: Traversable[(K, V)]) extends AnyVal {
+//def maxKeyLen = xs.toIterator.map(_._1.toString.length).max
+  def tabularKV = xs map (kv => s"%${xs.maxKeyLen}s %s".format(kv._1, kv._2))
+  def showKV()  = tabularKV foreach println
+}
 
-  implicit final class MultimapWithTabular[K, V](private val xs: Traversable[(K, Traversable[V])]) {
-    // TODO: alias xs.mkString("[", "],[", "]")
-    def tabularKVs = xs map (kv => s"%${xs.maxKeyLen}s %s".format(kv._1, kv._2.mkString("[", "],[", "]")))
-    def showKVs()  = tabularKVs foreach println
-  }
+final case class MultimapWithTabular[K, V](private val xs: Traversable[(K, Traversable[V])]) extends AnyVal {
+  // TODO: alias xs.mkString("[", "],[", "]")
+  def tabularKVs = xs map (kv => s"%${xs.maxKeyLen}s %s".format(kv._1, kv._2.mkString("[", "],[", "]")))
+  def showKVs()  = tabularKVs foreach println
+}
+
+object `package` extends Tabular {
+  implicit def intWithAlign(x: Int): IntWithAlign = IntWithAlign(x)
+
+  implicit def anyWithTextAlign[A](x: A): AnyWithTextAlign[A] = AnyWithTextAlign[A](x)
+
+  implicit def traversableW[A](xs: Traversable[A]): TraversableW[A] = TraversableW[A](xs)
+
+  implicit def traversableKVW[K, V](xs: Traversable[(K, V)]): TraversableKVW[K, V] = TraversableKVW[K, V](xs)
+
+  implicit def traversableKMVW[K, V](xs: Traversable[(K, Traversable[V])]): TraversableKMVW[K, V] = TraversableKMVW[K, V](xs)
+
+  implicit def anyWith_>>[A](x: A): AnyWith_>>[A] = AnyWith_>>[A](x)
+
+  // TODO: Consider Product.showP
+
+  implicit def productsWithTabular(xs: Traversable[Product]): ProductsWithTabular = ProductsWithTabular(xs)
+
+  implicit def matrixWithTabular[T](xss: Traversable[Traversable[T]]): MatrixWithTabular[T] = MatrixWithTabular(xss)
+
+  implicit def mapWithTabular[K, V](xs: Traversable[(K, V)]): MapWithTabular[K, V] = MapWithTabular[K, V](xs)
+
+  implicit def multimapWithTabular[K, V](xs: Traversable[(K, Traversable[V])]): MultimapWithTabular[K, V] = MultimapWithTabular[K, V](xs)
 }
