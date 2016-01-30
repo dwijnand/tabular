@@ -67,7 +67,7 @@ final case class TravKVWithTabular[K, V](private val xs: TraversableOnce[(K, V)]
 }
 
 final case class TraversableKVW[K, V](private val xs: TraversableOnce[(K, V)]) extends AnyVal {
-  def showkv(implicit vShow: V => String = _.toString): String = xs tabular (_._1.rj + ":", kv => vShow(kv._2))
+  def showkv2(implicit vShow: V => String = _.toString): String = xs tabular (_._1.rj + ":", kv => vShow(kv._2))
 }
 
 
@@ -85,7 +85,7 @@ final case class TravKVsWithTabular[K, V](private val xs: TraversableOnce[(K, Tr
 }
 
 final case class TraversableKMVW[K, V](private val xs: TraversableOnce[(K, TraversableOnce[V])]) extends AnyVal {
-  def showkvs(implicit mvShow: TraversableOnce[V] => String = _ mkString ", "): String = xs showkv mvShow
+  def showkvs2(implicit mvShow: TraversableOnce[V] => String = _ mkString ", "): String = xs showkv2 mvShow
 }
 
 

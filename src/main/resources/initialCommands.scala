@@ -20,10 +20,10 @@ val headers = scala.collection.immutable.ListMap(
 )
 
 
-case class Ver(major: Int, minor: Int, patch: Int) {
-  override def toString = s"$major.$minor.$patch"
+final case class Ver(x: Int, y: Int, z: Int) {
+  override def toString = s"$x.$y.$z"
 }
-case class Dep(g: String, a: String, v: Ver) {
+final case class Dep(g: String, a: String, v: Ver) {
   override def toString = s"$g % $a % $v"
 }
 
@@ -32,6 +32,6 @@ val deps = Seq(
   Dep("com.acme.bar", "bar-scala-sdk", Ver(12, 0, 1))
 )
 
-implicit class AnyW[A](private val x: A) extends AnyVal {
-  def >> : Unit = println(x)
-}
+final case class Foo(i: Int, str: String, bool: Boolean)
+
+val xs = Seq(Foo(23, "foo", true), Foo(0, "", false), Foo(999, "quiz", true))
