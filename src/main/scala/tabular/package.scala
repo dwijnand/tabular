@@ -22,6 +22,8 @@ final case class TraversableW[A](private val xs: TraversableOnce[A]) extends Any
   }
 
   def showTabular(columns: (A => StrWithAlign)*): Unit = tabular(columns: _*) foreach println
+
+  def showXs(): Unit = println(xs mkString ("[", ",", "]"))
 }
 
 final case class ProductsWithTabular(private val xs: Traversable[Product]) extends AnyVal {
@@ -54,36 +56,17 @@ final case class ProductsWithTabular(private val xs: Traversable[Product]) exten
 
 
 
-final case class TravKVWithTabular[K, V](private val xs: TraversableOnce[(K, V)]) extends AnyVal { // MapWithTabular
+final case class TravKVWithTabular[K, V](private val xs: TraversableOnce[(K, V)]) extends AnyVal {
   def maxKeyLen: Option[Int] = xs.toIterator.map(_._1.toString.length).maxOpt
-  def tabularkv: TraversableOnce[String] = {
-    xs.maxKeyLen.fold(Nil: TraversableOnce[String]) { len =>
-      val fmt = s"%${len}s %s"
-      xs map (kv => fmt format(kv._1, kv._2))
-    }
-  }
-  def showkv(): Unit = tabularkv foreach println
 
-  def tabularkv2(implicit vShow: V => String = _.toString): Seq[String] =
-    xs tabular (_._1.rj + ":", kv => vShow(kv._2))
-  def showkv2(implicit vShow: V => String = _.toString): Unit = tabularkv2 foreach println
+  def tabularkv(implicit z: V => String = _.toString): Seq[String] = xs tabular (_._1.rj + ":", kv => z(kv._2))
+  def    showkv(implicit z: V => String = _.toString): Unit        = tabularkv foreach println
 }
 
 
-final case class TravKVsWithTabular[K, V](private val xs: TraversableOnce[(K, Traversable[V])]) extends AnyVal { // MultimapWithTabular
-  // TODO: alias xs.mkString("[", "],[", "]")
-  def tabularkvs: TraversableOnce[String] = {
-    xs.maxKeyLen.fold(Nil: TraversableOnce[String]) { len =>
-      val fmt = s"%${len}s %s"
-      // TODO: If vs.size == 1 drop parens?
-      def showVs(vs: Traversable[V]) = if (vs.size == 1) vs.head else vs.mkString("[", ", ", "]")
-      xs map (kv => fmt format(kv._1, showVs(kv._2)))
-    }
-  }
-  def showkvs(): Unit = tabularkvs foreach println
-
-  def tabularkvs2(implicit mvShow: TraversableOnce[V] => String = _ mkString ", "): Seq[String] = xs tabularkv2 mvShow
-  def showkvs2(implicit mvShow: TraversableOnce[V] => String = _ mkString ", "): Unit = tabularkvs2 foreach println
+final case class TravKVsWithTabular[K, V](private val xs: TraversableOnce[(K, TraversableOnce[V])]) extends AnyVal {
+  def tabularkvs(implicit z: TraversableOnce[V] => String = _ mkString ", "): Seq[String] = xs tabularkv z
+  def    showkvs(implicit z: TraversableOnce[V] => String = _ mkString ", "): Unit        = tabularkvs foreach println
 }
 
 
@@ -103,10 +86,7 @@ final case class MatrixWithTabular[T](private val xss: TraversableOnce[Traversab
   def showM(): Unit = tabularM foreach println
 }
 
-trait Tabular {
-}
-
-object `package` extends Tabular {
+object `package` {
   implicit def intWithAlign(x: Int): IntWithAlign = IntWithAlign(x)
 
   implicit def anyWithTextAlign[A](x: A): AnyWithTextAlign[A] = AnyWithTextAlign[A](x)
