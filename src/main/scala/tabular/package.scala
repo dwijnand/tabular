@@ -6,23 +6,22 @@ final case class TravOnceWithMaxOpt[A](private val xs: TraversableOnce[A]) exten
 
 
 final case class TraversableW[A](private val xs: TraversableOnce[A]) extends AnyVal {
-  def tabular(columns: (A => StrWithAlign)*): String = {
-    if (xs.isEmpty || columns.isEmpty) ""
+  def tabular(columns: (A => StrWithAlign)*): Seq[String] = {
+    if (xs.isEmpty || columns.isEmpty) Nil
     else {
       val values = xs.toVector
       val functions = columns.toVector
 
       def rows = values map (x => functions map (f => f(x).str))
       def cols = functions map (f => values map (x => f(x).str))
-      def renderLines = {
-        def widths = cols map (_ map (_.length) max)
-        def aligns = functions map (_(values.head).align)
-        val rowFormat = (widths, aligns).zipped map ((width, align) => align alignBy width) mkString " "
-        rows map (row => rowFormat.format(row: _*))
-      }
-      renderLines mkString "\n"
+      def widths = cols map (_ map (_.length) max)
+      def aligns = functions map (_(values.head).align)
+      val rowFormat = (widths, aligns).zipped map ((width, align) => align alignBy width) mkString " "
+      rows map (row => rowFormat.format(row: _*))
     }
   }
+
+  def showTabular(columns: (A => StrWithAlign)*): Unit = tabular(columns: _*) foreach println
 }
 
 final case class ProductsWithTabular(private val xs: Traversable[Product]) extends AnyVal {
@@ -64,10 +63,10 @@ final case class TravKVWithTabular[K, V](private val xs: TraversableOnce[(K, V)]
     }
   }
   def showkv(): Unit = tabularkv foreach println
-}
 
-final case class TraversableKVW[K, V](private val xs: TraversableOnce[(K, V)]) extends AnyVal {
-  def showkv2(implicit vShow: V => String = _.toString): String = xs tabular (_._1.rj + ":", kv => vShow(kv._2))
+  def tabularkv2(implicit vShow: V => String = _.toString): Seq[String] =
+    xs tabular (_._1.rj + ":", kv => vShow(kv._2))
+  def showkv2(implicit vShow: V => String = _.toString): Unit = tabularkv2 foreach println
 }
 
 
@@ -82,10 +81,9 @@ final case class TravKVsWithTabular[K, V](private val xs: TraversableOnce[(K, Tr
     }
   }
   def showkvs(): Unit = tabularkvs foreach println
-}
 
-final case class TraversableKMVW[K, V](private val xs: TraversableOnce[(K, TraversableOnce[V])]) extends AnyVal {
-  def showkvs2(implicit mvShow: TraversableOnce[V] => String = _ mkString ", "): String = xs showkv2 mvShow
+  def tabularkvs2(implicit mvShow: TraversableOnce[V] => String = _ mkString ", "): Seq[String] = xs tabularkv2 mvShow
+  def showkvs2(implicit mvShow: TraversableOnce[V] => String = _ mkString ", "): Unit = tabularkvs2 foreach println
 }
 
 
@@ -106,9 +104,6 @@ final case class MatrixWithTabular[T](private val xss: TraversableOnce[Traversab
 }
 
 trait Tabular {
-  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A])                      : TravOnceWithMaxOpt[A]    = TravOnceWithMaxOpt[A](xs)
-  implicit def travKVWithTabular[K, V](xs: TraversableOnce[(K, V)])               : TravKVWithTabular[K, V]  = TravKVWithTabular[K, V](xs)
-  implicit def travKVsWithTabular[K, V](xs: TraversableOnce[(K, Traversable[V])]) : TravKVsWithTabular[K, V] = TravKVsWithTabular[K, V](xs)
 }
 
 object `package` extends Tabular {
@@ -118,18 +113,20 @@ object `package` extends Tabular {
 
   implicit def anyWithGreaterThanGreaterThan[A](x: A): AnyWithGreaterThanGreaterThan[A] = AnyWithGreaterThanGreaterThan[A](x)
 
+  implicit def travOnceWithMaxOpt[A](xs: TraversableOnce[A]): TravOnceWithMaxOpt[A] = TravOnceWithMaxOpt[A](xs)
+
+  implicit def travKVWithTabular[K, V](xs: TraversableOnce[(K, V)]): TravKVWithTabular[K, V] = TravKVWithTabular[K, V](xs)
+
+  implicit def travKVsWithTabular[K, V](xs: TraversableOnce[(K, Traversable[V])]): TravKVsWithTabular[K, V] = TravKVsWithTabular[K, V](xs)
 
   implicit def traversableW[A](xs: TraversableOnce[A]): TraversableW[A] = TraversableW[A](xs)
-
-  implicit def traversableKVW[K, V](xs: TraversableOnce[(K, V)]): TraversableKVW[K, V] = TraversableKVW[K, V](xs)
-
-  implicit def traversableKMVW[K, V](xs: TraversableOnce[(K, TraversableOnce[V])]): TraversableKMVW[K, V] = TraversableKMVW[K, V](xs)
 
   implicit def productsWithTabular(xs: Traversable[Product]): ProductsWithTabular = ProductsWithTabular(xs)
 
   implicit def matrixWithTabular[T](xss: TraversableOnce[TraversableOnce[T]]): MatrixWithTabular[T] = MatrixWithTabular(xss)
 }
 
+// TODO: Naming things: show, tabular, return Unit, String, Seq[String]
 // TODO: Make everything take TraversableOnce
 // TODO: showkv vs showKV, showps vs showPs
 // TODO: Consider Product.showP

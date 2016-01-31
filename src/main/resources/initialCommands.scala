@@ -35,3 +35,9 @@ val deps = Seq(
 final case class Foo(i: Int, str: String, bool: Boolean)
 
 val xs = Seq(Foo(23, "foo", true), Foo(0, "", false), Foo(999, "quiz", true))
+
+val matrix = Seq(
+  Seq(1, 2, 3),
+  Seq(4, 5, 6),
+  Seq(7, 8, 9)
+)
