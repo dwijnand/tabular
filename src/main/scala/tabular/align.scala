@@ -5,7 +5,6 @@ final case class IntWithAlign(private val x: Int) extends AnyVal {
   def ralign: String = if (x == 0) "%s" else s"%${x}s"
 }
 
-
 sealed trait TextAlign extends Any   { def alignBy(width: Int): String }
 case object LAlign extends TextAlign { def alignBy(width: Int) = width.lalign }
 case object RAlign extends TextAlign { def alignBy(width: Int) = width.ralign }
@@ -18,13 +17,13 @@ sealed trait StrWithAlignOps extends Any with StrWithAlign {
   def str: String
   def align: TextAlign
 }
-final case class LString(val str: String) extends AnyVal with StrWithAlignOps {
+final case class LString(str: String) extends AnyVal with StrWithAlignOps {
   def align = LAlign
-  def +(s: String) = new LString(str + s)
+//def +(s: String) = new LString(str + s)
 }
-final case class RString(val str: String) extends AnyVal with StrWithAlignOps {
+final case class RString(str: String) extends AnyVal with StrWithAlignOps {
   def align = RAlign
-  def +(s: String) = new RString(str + s)
+//def +(s: String) = new RString(str + s)
 }
 object StrWithAlign {
   implicit def liftAny[A](x: A): StrWithAlign = x.lj
@@ -37,7 +36,7 @@ final case class AnyWithTextAlign[A](private val x: A) extends AnyVal {
   def rj: RString = new RString(x.toString)
 }
 
-
+// ---
 // TODO ljustify? centered?
 
 object Centered {
