@@ -167,3 +167,19 @@ package hhh {
     def format(e: Entry): String         = "%s%s: %s".format(" " * (maxWidth - e.width), e.k, e.v)
   }
 }
+
+package amn {
+ trait Show[A] {
+   def show(x: A): String
+ }
+ object Show {
+   def indent(s: String): String = s.lines map ("  " + _) mkString "\n"
+   def apply[A](f: A => String): Show[A] = new Show[A] { def show(x: A) = f(x) }
+   def any[A] : Show[A] = apply[A]("" + _)
+
+   implicit def showPair[K, V](implicit x1: Show[K], x2: Show[V]): Show[(K, V)] =
+     Show { case (k, v) => "%s: %s".format(x1 show k, x2 show v) }
+
+   implicit def showString(s: String): Show[String] = apply(identity)
+ }
+}
