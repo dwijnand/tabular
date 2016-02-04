@@ -37,6 +37,25 @@ final case class AnyWithTextAlign[A](private val x: A) extends AnyVal {
 }
 
 // ---
+
+final case class IntToFormatString(private val x: Int) extends AnyVal {
+  def  leftFormatString: String = if (x == 0) "%s" else s"%-${x}s"
+  def rightFormatString: String = if (x == 0) "%s" else s"%${x}s"
+}
+
+sealed trait TextAlignment extends Any
+final case object FlushLeft  extends TextAlignment
+final case object FlushRight extends TextAlignment
+final case object Centered   extends TextAlignment
+
+sealed trait Column extends Any
+object Column {
+  implicit class LiteralChar(val ch: Char) extends AnyVal with Column
+  implicit class LiteralString(val s: String) extends AnyVal with Column
+  implicit class FromFunction[A](val f: A => StrWithAlign) extends AnyVal with Column
+}
+
+// ---
 // TODO ljustify? centered?
 
 object Centered {
