@@ -1,7 +1,7 @@
 package object tabular {
-  implicit def intWithAlign(x: Int): IntWithAlign = IntWithAlign(x)
+  implicit def intToFormatString(x: Int): IntToFormatString = IntToFormatString(x)
 
-  implicit def anyWithTextAlign[A](x: A): AnyWithTextAlign[A] = AnyWithTextAlign[A](x)
+  implicit def anyToStringWithAlignment[A](x: A): AnyToStringWithAlignment[A] = AnyToStringWithAlignment[A](x)
 
   implicit def anyWithGreaterThanGreaterThan[A](x: A): AnyWithGreaterThanGreaterThan[A] = AnyWithGreaterThanGreaterThan[A](x)
 

@@ -1,18 +1,18 @@
 package tabular
 
 final case class TravWithTabular[A](private val xs: TraversableOnce[A]) extends AnyVal {
-  def tabular(columns: (A => StrWithAlign)*): Seq[String] = {
+  def tabular(columns: (A => StringWithAlignment)*): Seq[String] = {
     if (xs.isEmpty || columns.isEmpty) Nil
     else {
       val values = xs.toVector
       val functions = columns.toVector
 
-      val rows = values map (x => functions map (f => f(x).str))
-      val cols = functions map (f => values map (x => f(x).str))
+      val rows = values map (x => functions map (f => f(x).string))
+      val cols = functions map (f => values map (x => f(x).string))
 
       val widths = cols map (_ map (_.length) max)
-      val aligns = functions map (_(values.head).align)
-      val rowFormat = (widths, aligns).zipped map ((width, align) => align alignBy width) mkString " "
+      val aligns = functions map (_(values.head).alignment)
+      val rowFormat = (widths, aligns).zipped map ((width, align) => align formatString width) mkString " "
 
       rows map (row => rowFormat.format(row: _*))
     }
@@ -44,7 +44,7 @@ final case class ProductsWithTabular(private val xs: Traversable[Product]) exten
         val headers0 = h.getClass.getDeclaredFields.toVector map (_.getName)
         val headers = headers0 zip widths map Function.uncurried(trimHeader _).tupled
 
-        val rowFormat = widths map (_.ralign) mkString " "
+        val rowFormat = widths map (_.rightFormatString) mkString " "
         (headers +: rows) map (row => rowFormat.format(row.seq: _*))
     }
   }
@@ -72,7 +72,7 @@ final case class MatrixWithTabular[T](private val xss: TraversableOnce[Traversab
 
     val widths = cols map (col => col map (_.length) max)
 
-    val rowFormat = widths map (_.ralign) mkString " "
+    val rowFormat = widths map (_.rightFormatString) mkString " "
     rows map (row => rowFormat.format(row.seq: _*))
   }
 }
