@@ -51,6 +51,10 @@ wartremoverWarnings  -= Wart.ToString // TODO: Add TryShow (non default unsafe w
        maxErrors := 5
 triggeredMessage := Watched.clearWhenTriggered
 
+libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1"
+
+testFrameworks += new TestFramework("utest.runner.Framework")
+
 initialCommands in console += "\n" + IO.read((resourceDirectory in Compile).value / "initialCommands.scala")
 
 parallelExecution in Test := true
