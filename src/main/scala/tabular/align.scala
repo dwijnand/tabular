@@ -1,13 +1,20 @@
 package tabular
 
+final case class StringFormatFunc(val fmt: String) extends (Any => String) {
+  def apply(x: Any): String = fmt format x
+}
+
 final case class IntToFormatString(private val x: Int) extends AnyVal {
   def  leftFormatString: String = if (x == 0) "%s" else s"%-${x}s"
   def rightFormatString: String = if (x == 0) "%s" else s"%${x}s"
+
+  def flushLeft:  StringFormatFunc = StringFormatFunc(x.leftFormatString)
+  def flushRight: StringFormatFunc = StringFormatFunc(x.rightFormatString)
 }
 
-sealed trait TextAlignment                   { def formatString(width: Int): String }
-case object FlushLeft  extends TextAlignment { def formatString(width: Int): String = width.leftFormatString  }
-case object FlushRight extends TextAlignment { def formatString(width: Int): String = width.rightFormatString }
+sealed trait TextAlignment                   { def formatString(width: Int): StringFormatFunc }
+case object FlushLeft  extends TextAlignment { def formatString(width: Int): StringFormatFunc = width.flushLeft  }
+case object FlushRight extends TextAlignment { def formatString(width: Int): StringFormatFunc = width.flushRight }
 //case object Centered extends TextAlignment
 
 //sealed trait Column extends Any
@@ -30,7 +37,7 @@ object StringWithAlignment {
   implicit def liftImpl(x: StringWithAlignment): StringWithAlignment.Impl = x match { case y: StringWithAlignment.Impl => y }
 
   implicit class Ops(val swa: StringWithAlignment) extends AnyVal {
-    def format(width: Int): String = swa.alignment formatString width format swa.string
+    def format(width: Int): String = swa.alignment formatString width apply swa.string
   }
 
   sealed abstract class Impl(val string: String, val alignment: TextAlignment) extends StringWithAlignment
