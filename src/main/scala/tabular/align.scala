@@ -26,7 +26,7 @@ object TextAlignment {
         val marg = width - s.length
         val left = marg / 2
         val right = marg - left
-        (" " * left) + "%s" + (" " * right) format s
+        (" " * left) + s + (" " * right)
       }
     }
   }
