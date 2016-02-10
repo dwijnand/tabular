@@ -32,13 +32,6 @@ object TextAlignment {
   }
 }
 
-//sealed trait Column extends Any
-//object Column {
-//  implicit class LiteralChar(val ch: Char) extends AnyVal with Column
-//  implicit class LiteralString(val s: String) extends AnyVal with Column
-//  implicit class FromFunction[A](val f: A => StringAlignment) extends AnyVal with Column
-//}
-
 // Enables having an implicit conversion for Any without enriching Any with these methods
 // Works because implicit conversions don't chain
 sealed trait StringWithAlignment
@@ -53,6 +46,11 @@ object StringWithAlignment {
 
   implicit class Ops(val swa: StringWithAlignment) extends AnyVal {
     def format(width: Int): String = swa.alignment format (swa.string, width)
+//  def +(s2: String) = swa match {
+//    case LString(s) => LString(s + s2)
+//    case RString(s) => RString(s + s2)
+//    case CString(s) => CString(s + s2)
+//  }
   }
 
   sealed abstract class Impl(val string: String, val alignment: TextAlignment) extends StringWithAlignment
