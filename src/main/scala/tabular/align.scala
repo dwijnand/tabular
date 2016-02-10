@@ -5,8 +5,8 @@ final case class StringFormatFunc(val fmt: String) extends (Any => String) {
 }
 
 final case class IntToFormatString(private val x: Int) extends AnyVal {
-  def  leftFormatString: String = if (x == 0) "%s" else s"%-${x}s"
-  def rightFormatString: String = if (x == 0) "%s" else s"%${x}s"
+  def  leftFormatString: String = if (x == 0) "%s" else s"%%-%ds" format x
+  def rightFormatString: String = if (x == 0) "%s" else s"%%%ds"  format x
 
   def flushLeft:  StringFormatFunc = StringFormatFunc(x.leftFormatString)
   def flushRight: StringFormatFunc = StringFormatFunc(x.rightFormatString)
@@ -51,7 +51,7 @@ final case class AnyToStringWithAlignment[A](private val x: A) extends AnyVal {
 }
 
 // ---
-// TODO ljustify? centered?
+// TODO ljustify? centered? ljust/rjust/center
 
 object CenteredFn {
   def center1(s: String, len: Int) = {
