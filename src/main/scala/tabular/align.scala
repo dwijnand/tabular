@@ -5,7 +5,7 @@ final case class IntToFormatString(private val x: Int) extends AnyVal {
   def rightFormatString: String = if (x == 0) "%s" else s"%${x}s"
 }
 
-sealed trait TextAlignment extends Any       { def formatString(width: Int): String }
+sealed trait TextAlignment                   { def formatString(width: Int): String }
 case object FlushLeft  extends TextAlignment { def formatString(width: Int): String = width.leftFormatString  }
 case object FlushRight extends TextAlignment { def formatString(width: Int): String = width.rightFormatString }
 //case object Centered extends TextAlignment
@@ -19,21 +19,21 @@ case object FlushRight extends TextAlignment { def formatString(width: Int): Str
 
 // Enables having an implicit conversion for Any without enriching Any with these methods
 // Works because implicit conversions don't chain
-sealed trait StringWithAlignment extends Any
+sealed trait StringWithAlignment
 
-sealed trait StringWithAlignmentOps extends Any with StringWithAlignment {
-  def string: String
-  def alignment: TextAlignment
-}
-
-final case class LString(string: String) extends AnyVal with StringWithAlignmentOps { def alignment = FlushLeft  }
-final case class RString(string: String) extends AnyVal with StringWithAlignmentOps { def alignment = FlushRight }
+final case class LString(override val string: String) extends StringWithAlignment.Impl(string, FlushLeft)
+final case class RString(override val string: String) extends StringWithAlignment.Impl(string, FlushRight)
 //final case class CString(value: String)extends AnyVal with StringWithAlignmentOps { def alignment = Centered   }
 
 object StringWithAlignment {
   implicit def liftAny[A](x: A): StringWithAlignment = x.lj
-  implicit def liftOps(x: StringWithAlignment): StringWithAlignmentOps = x match { case y: StringWithAlignmentOps => y }
-  def unapply(x: StringWithAlignment): Option[(String, TextAlignment)] = Some((x.string, x.alignment))
+  implicit def liftImpl(x: StringWithAlignment): StringWithAlignment.Impl = x match { case y: StringWithAlignment.Impl => y }
+
+  implicit class Ops(val swa: StringWithAlignment) extends AnyVal {
+    def format(width: Int): String = swa.alignment formatString width format swa.string
+  }
+
+  sealed abstract class Impl(val string: String, val alignment: TextAlignment) extends StringWithAlignment
 }
 
 

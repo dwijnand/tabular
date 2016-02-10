@@ -12,12 +12,8 @@ final case class TravWithTabular[A](private val xs: TraversableOnce[A]) extends 
 
       val maxWidths: Vector[Int] = cols map (_ map (_.length) max)
 
-      def showRow(x: A): String = {
-        (functions, maxWidths).zipped map { (fn, maxWidth) =>
-          val StringWithAlignment(string, alignment) = fn(x)
-          alignment formatString maxWidth format string
-        } mkString " "
-      }
+      def showRow(x: A): String =
+        (functions, maxWidths).zipped map ((fn, maxWidth) => fn(x) format maxWidth) mkString " "
 
       values map showRow
     }
