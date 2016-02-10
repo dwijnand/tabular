@@ -3,6 +3,9 @@ package object tabular {
 
   implicit def anyToStringWithAlignment[A](x: A): AnyToStringWithAlignment[A] = AnyToStringWithAlignment[A](x)
 
+  implicit def liftCharToColumn[A](ch: Char)    : A => StringWithAlignment = x => ch.lj
+  implicit def liftStringToColumn[A](s: String) : A => StringWithAlignment = x => s.lj
+
   implicit def anyWithGreaterThanGreaterThan[A](x: A): AnyWithGreaterThanGreaterThan[A] = AnyWithGreaterThanGreaterThan[A](x)
 
   implicit def travWithTabular[A](xs: TraversableOnce[A])                             : TravWithTabular[A]       = TravWithTabular[A](xs)
