@@ -15,8 +15,8 @@ object Deps {
 object DepsSuite extends TestSuite {
   val tests = TestSuite {
     'deps {
-      val actual = Deps.deps tabular(_.g.rj, _.a, _.v) mkString "\n"
-      val l1 = "com.example.foo foo-server    1.2.103"
+      val actual = Deps.deps tabular(_.g.rj, _.a.cj, _.v) mkString "\n"
+      val l1 = "com.example.foo  foo-server   1.2.103"
       val l2 = "   com.acme.bar bar-scala-sdk 12.0.1 "
       val expect = l1 + "\n" + l2
       assert(actual == expect)
