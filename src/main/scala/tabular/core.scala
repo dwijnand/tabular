@@ -4,17 +4,22 @@ final case class TravWithTabular[A](private val xs: TraversableOnce[A]) extends 
   def tabular(columns: (A => StringWithAlignment)*): Seq[String] = {
     if (xs.isEmpty || columns.isEmpty) Nil
     else {
-      val values = xs.toVector
-      val functions = columns.toVector
+      val values: Vector[A] = xs.toVector
+      val functions: Vector[A => StringWithAlignment] = columns.toVector
 
-      val rows = values map (x => functions map (f => f(x).string))
-      val cols = functions map (f => values map (x => f(x).string))
+  //  lazy val rows: Vector[Vector[String]] = values map (x => functions map (fn => fn(x).string))
+      lazy val cols: Vector[Vector[String]] = functions map (fn => values map (x => fn(x).string))
 
-      val widths = cols map (_ map (_.length) max)
-      val aligns = functions map (_(values.head).alignment)
-      val rowFormat = (widths, aligns).zipped map ((width, align) => align formatString width) mkString " "
+      val maxWidths: Vector[Int] = cols map (_ map (_.length) max)
 
-      rows map (row => rowFormat.format(row: _*))
+      def showRow(x: A): String = {
+        (functions, maxWidths).zipped map { (fn, maxWidth) =>
+          val StringWithAlignment(string, alignment) = fn(x)
+          alignment formatString maxWidth format string
+        } mkString " "
+      }
+
+      values map showRow
     }
   }
 

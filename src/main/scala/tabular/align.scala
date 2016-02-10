@@ -33,6 +33,7 @@ final case class RString(string: String) extends AnyVal with StringWithAlignment
 object StringWithAlignment {
   implicit def liftAny[A](x: A): StringWithAlignment = x.lj
   implicit def liftOps(x: StringWithAlignment): StringWithAlignmentOps = x match { case y: StringWithAlignmentOps => y }
+  def unapply(x: StringWithAlignment): Option[(String, TextAlignment)] = Some((x.string, x.alignment))
 }
 
 
