@@ -36,9 +36,11 @@ object TextAlignment {
 // Works because implicit conversions don't chain
 sealed trait StringWithAlignment
 
-final case class LString(override val string: String) extends StringWithAlignment.Impl(string, FlushLeft)
-final case class RString(override val string: String) extends StringWithAlignment.Impl(string, FlushRight)
-final case class CString(override val string: String) extends StringWithAlignment.Impl(string, Centered)
+// Can't de-duplify + into a super-method by using copy because of SI-5122
+// Can't enrich it on because any2stringadd has higher precedence (in-scope implicits > implicit scope)
+final case class LString(override val string: String) extends StringWithAlignment.Impl(string, FlushLeft)  { def +(s: String) = copy(string + s) }
+final case class RString(override val string: String) extends StringWithAlignment.Impl(string, FlushRight) { def +(s: String) = copy(string + s) }
+final case class CString(override val string: String) extends StringWithAlignment.Impl(string, Centered)   { def +(s: String) = copy(string + s) }
 
 object StringWithAlignment {
   implicit def liftAny[A](x: A): StringWithAlignment = x.lj
@@ -46,11 +48,6 @@ object StringWithAlignment {
 
   implicit class Ops(val swa: StringWithAlignment) extends AnyVal {
     def format(width: Int): String = swa.alignment format (swa.string, width)
-//  def +(s2: String) = swa match {
-//    case LString(s) => LString(s + s2)
-//    case RString(s) => RString(s + s2)
-//    case CString(s) => CString(s + s2)
-//  }
   }
 
   sealed abstract class Impl(val string: String, val alignment: TextAlignment) extends StringWithAlignment
