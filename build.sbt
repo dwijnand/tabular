@@ -1,4 +1,4 @@
-def Settings(settings: SettingsDefinition*): Seq[Setting[_]] = settings flatMap (_.settings)
+import SbtMisc._
 
 lazy val tabular = project in file(".")
 
