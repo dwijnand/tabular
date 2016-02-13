@@ -6,7 +6,7 @@ organization := "com.dwijnand"
         name := "tabular"
      version := "0.1.0-SNAPSHOT"
     licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
- description := name.value
+ description := "A way to show data in tabular form"
     homepage := Some(url("https://github.com/dwijnand/tabular"))
 
 val scala211 = settingKey[String]("")
@@ -25,7 +25,7 @@ scalacOptions  += "-language:postfixOps"
 scalacOptions  += "-Xfuture"
 scalacOptions  += "-Yinline-warnings"
 scalacOptions  += "-Yno-adapted-args"
-scalacOptions  += "-Ywarn-dead-code" // WARN: Too many ???s cause false positives!
+scalacOptions  += "-Ywarn-dead-code"
 scalacOptions  += "-Ywarn-numeric-widen"
 scalacOptions ++= "-Ywarn-unused".ifScala211Plus.value.toList
 scalacOptions ++= "-Ywarn-unused-import".ifScala211Plus.value.toList
@@ -72,8 +72,6 @@ fork in Test := false
 fork in run := true
 cancelable in Global := true
 
-noDocs
-
 pomExtra := pomExtra.value ++ {
     <developers>
         <developer>
@@ -89,6 +87,8 @@ pomExtra := pomExtra.value ++ {
         <url>https://github.com/dwijnand/tabular</url>
     </scm>
 }
+
+releaseCrossBuild := true
 
 watchSources ++= (baseDirectory.value * "*.sbt").get
 watchSources ++= (baseDirectory.value / "project" * "*.scala").get
