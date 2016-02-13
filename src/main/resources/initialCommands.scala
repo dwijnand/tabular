@@ -19,12 +19,8 @@ val headers = scala.collection.immutable.ListMap(
 )
 
 
-final case class Ver(x: Int, y: Int, z: Int) {
-  override def toString = s"$x.$y.$z"
-}
-final case class Dep(g: String, a: String, v: Ver) {
-  override def toString = s"$g % $a % $v"
-}
+final case class Ver(x: Int, y: Int, z: Int)       { override def toString = s"$x.$y.$z"     }
+final case class Dep(g: String, a: String, v: Ver) { override def toString = s"$g % $a % $v" }
 
 val deps = Seq(
   Dep("com.example.foo", "foo-server", Ver(1, 2, 103)),
