@@ -9,9 +9,13 @@ organization := "com.dwijnand"
  description := name.value
     homepage := Some(url("https://github.com/dwijnand/tabular"))
 
-      scalaVersion := "2.11.7"
-crossScalaVersions := Seq(scalaVersion.value)
-// TODO: Consider adding support for Scala 2.11, 2.12 & Scala.js
+val scala211 = settingKey[String]("")
+val scala210 = settingKey[String]("")
+          scala211 := "2.11.7"
+          scala210 := "2.10.6"
+      scalaVersion := scala211.value
+crossScalaVersions := Seq(scala211.value, scala210.value)
+// TODO: Consider adding support for Scala 2.12 & Scala.js
 
 scalacOptions ++= Seq("-encoding", "utf8")
 scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
@@ -23,8 +27,8 @@ scalacOptions  += "-Yinline-warnings"
 scalacOptions  += "-Yno-adapted-args"
 scalacOptions  += "-Ywarn-dead-code" // WARN: Too many ???s cause false positives!
 scalacOptions  += "-Ywarn-numeric-widen"
-scalacOptions  += "-Ywarn-unused"
-scalacOptions  += "-Ywarn-unused-import"
+scalacOptions ++= "-Ywarn-unused".ifScala211Plus.value.toList
+scalacOptions ++= "-Ywarn-unused-import".ifScala211Plus.value.toList
 scalacOptions  += "-Ywarn-value-discard"
 // TODO: Consider no predef and no import
 
@@ -37,7 +41,7 @@ wartremoverWarnings  += Wart.ExplicitImplicitTypes
 wartremoverWarnings  += Wart.FinalCaseClass
 wartremoverWarnings  += Wart.JavaConversions
 wartremoverWarnings  += Wart.MutableDataStructures
-wartremoverWarnings  += Wart.NoNeedForMonad
+wartremoverWarnings ++= Wart.NoNeedForMonad.ifScala211Plus.value.toList // bombs b/c uses quasiquotes #106
 wartremoverWarnings  += Wart.Nothing
 wartremoverWarnings  += Wart.Option2Iterable
 wartremoverWarnings  -= Wart.Any                    // bans f-interpolator #158

@@ -1,7 +1,7 @@
 package tabular
 
-final case class AnyWithGreaterThanGreaterThan[A](private val x: A) extends AnyVal {
-  def >>(): Unit = println(x)
+final case class AnyWithGreaterThanGreaterThan[A](_x: A) extends AnyVal {
+  def >>(): Unit = println(_x)
 }
 
 

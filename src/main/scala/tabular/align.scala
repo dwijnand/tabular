@@ -4,12 +4,12 @@ final case class StringFormatFunc(val fmt: String) extends (Any => String) {
   def apply(x: Any): String = fmt format x
 }
 
-final case class IntToFormatString(private val x: Int) extends AnyVal {
-  def  leftFormatString: String = if (x == 0) "%s" else "%%-%ds" format x
-  def rightFormatString: String = if (x == 0) "%s" else "%%%ds"  format x
+final case class IntToFormatString(_x: Int) extends AnyVal {
+  def  leftFormatString: String = if (_x == 0) "%s" else "%%-%ds" format _x
+  def rightFormatString: String = if (_x == 0) "%s" else "%%%ds"  format _x
 
-  def flushLeft:  StringFormatFunc = StringFormatFunc(x.leftFormatString)
-  def flushRight: StringFormatFunc = StringFormatFunc(x.rightFormatString)
+  def flushLeft:  StringFormatFunc = StringFormatFunc(_x.leftFormatString)
+  def flushRight: StringFormatFunc = StringFormatFunc(_x.rightFormatString)
 }
 
 sealed trait TextAlignment
@@ -55,8 +55,8 @@ object StringWithAlignment {
 
 
 //TODO ljustify? centered? ljust/rjust/center
-final case class AnyToStringWithAlignment[A](private val x: A) extends AnyVal {
-  def lj: LString = new LString(x.toString)
-  def rj: RString = new RString(x.toString)
-  def cj: CString = new CString(x.toString)
+final case class AnyToStringWithAlignment[A](_x: A) extends AnyVal {
+  def lj: LString = new LString(_x.toString)
+  def rj: RString = new RString(_x.toString)
+  def cj: CString = new CString(_x.toString)
 }

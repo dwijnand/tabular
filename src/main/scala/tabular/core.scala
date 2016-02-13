@@ -1,10 +1,10 @@
 package tabular
 
-final case class TravWithTabular[A](private val xs: TraversableOnce[A]) extends AnyVal {
+final case class TravWithTabular[A](_xs: TraversableOnce[A]) extends AnyVal {
   def tabular(columns: (A => StringWithAlignment)*): Seq[String] = {
-    if (xs.isEmpty || columns.isEmpty) Nil
+    if (_xs.isEmpty || columns.isEmpty) Nil
     else {
-      val values: Vector[A] = xs.toVector
+      val values: Vector[A] = _xs.toVector
       val functions: Vector[A => StringWithAlignment] = columns.toVector
 
   //  lazy val rows: Vector[Vector[String]] = values map (x => functions map (fn => fn(x).string))
@@ -19,12 +19,12 @@ final case class TravWithTabular[A](private val xs: TraversableOnce[A]) extends 
     }
   }
 
-  def showSeq(): Unit = println(xs mkString ("[", ",", "]"))
+  def showSeq(): Unit = println(_xs mkString ("[", ",", "]"))
 
-  def printEach(): Unit = xs foreach println
+  def printEach(): Unit = _xs foreach println
 }
 
-final case class ProductsWithTabular(private val xs: Traversable[Product]) extends AnyVal {
+final case class ProductsWithTabular(_xs: Traversable[Product]) extends AnyVal {
   private def trimHeader(h: String): Int => String = {
     case i if i >= h.length => h
     case i if i > 5         => h.substring(0, i - 2) + ".."
@@ -33,11 +33,11 @@ final case class ProductsWithTabular(private val xs: Traversable[Product]) exten
   }
 
   def showPs: Seq[String] = {
-    xs.headOption match {
+    _xs.headOption match {
       case None    => Nil
       case Some(h) =>
-        val rows = xs.toVector map (_.productIterator.toVector map (_.toString))
-        val cols = (0 until h.productArity).toVector map (idx => xs map (_.productElement(idx).toString))
+        val rows = _xs.toVector map (_.productIterator.toVector map (_.toString))
+        val cols = (0 until h.productArity).toVector map (idx => _xs map (_.productElement(idx).toString))
 
         // TODO: deal with > 267 chars
         val widths = cols map (col => col map (_.length) max)
@@ -53,23 +53,23 @@ final case class ProductsWithTabular(private val xs: Traversable[Product]) exten
 
 
 
-final case class TravKVWithTabular[K, V](private val xs: TraversableOnce[(K, V)]) extends AnyVal {
-  def showkv(implicit z: V => String = _.toString): Seq[String] = xs tabular (_._1.rj + ":", kv => z(kv._2))
+final case class TravKVWithTabular[K, V](_xs: TraversableOnce[(K, V)]) extends AnyVal {
+  def showkv(implicit z: V => String = _.toString): Seq[String] = _xs tabular (_._1.rj + ":", kv => z(kv._2))
 }
 
 
-final case class TravKVsWithTabular[K, V](private val xs: TraversableOnce[(K, TraversableOnce[V])]) extends AnyVal {
-  def showkvs(implicit z: TraversableOnce[V] => String = _ mkString ", "): Seq[String] = xs showkv z
+final case class TravKVsWithTabular[K, V](_xs: TraversableOnce[(K, TraversableOnce[V])]) extends AnyVal {
+  def showkvs(implicit z: TraversableOnce[V] => String = _ mkString ", "): Seq[String] = _xs showkv z
 }
 
 
-final case class MatrixWithTabular[T](private val xss: TraversableOnce[TraversableOnce[T]]) extends AnyVal {
+final case class MatrixWithTabular[T](_xss: TraversableOnce[TraversableOnce[T]]) extends AnyVal {
   def showM: Vector[String] = {
-    val maxWidth = xss.toVector.foldLeft(0)((acc, x) => acc max x.size)
+    val maxWidth = _xss.toVector.foldLeft(0)((acc, x) => acc max x.size)
 
-    val rows = xss.toVector map (_.toVector map (_.toString) padTo(maxWidth, ""))
+    val rows = _xss.toVector map (_.toVector map (_.toString) padTo(maxWidth, ""))
 
-    val cols = (0 until maxWidth).toVector map (idx => xss map (_.toIndexedSeq.applyOrElse(idx, (_: Int) => "").toString))
+    val cols = (0 until maxWidth).toVector map (idx => _xss map (_.toIndexedSeq.applyOrElse(idx, (_: Int) => "").toString))
 
     val widths = cols map (col => col map (_.length) max)
 
