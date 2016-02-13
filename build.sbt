@@ -4,7 +4,6 @@ lazy val tabular = project in file(".")
 
 organization := "com.dwijnand"
         name := "tabular"
-     version := "0.1.0-SNAPSHOT"
     licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
  description := "A way to show data in tabular form"
     homepage := Some(url("https://github.com/dwijnand/tabular"))
