@@ -1,6 +1,10 @@
 # [Tabular][] [![Apache 2 badge][]](http://www.apache.org/licenses/LICENSE-2.0)
 
-`Tabular` is a way to show data in tabular form.
+> A way to show data in tabular form
+
+`Tabular` is a Scala library that provides extension methods for structured data, such as the Scala collections.
+
+It's the Scala library equivalent of the vim plugin [Tabular][vim-tabular].
 
 ## Setup
 
@@ -48,3 +52,4 @@ limitations under the License.
 
 [tabular]: https://github.com/dwijnand/tabular
 [Apache 2 badge]: http://img.shields.io/:license-Apache%202-red.svg
+[vim-tabular]: https://github.com/godlygeek/tabular
