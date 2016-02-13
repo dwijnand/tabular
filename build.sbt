@@ -60,7 +60,7 @@ dependencyOverrides += "org.scala-lang" % "scala-library"  % scalaVersion.value
 dependencyOverrides += "org.scala-lang" % "scala-reflect"  % scalaVersion.value
 dependencyOverrides += "org.scala-lang" % "scalap"         % scalaVersion.value
 
-libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1"
+libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1" % "test"
 
 testFrameworks += new TestFramework("utest.runner.Framework")
 
