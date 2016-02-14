@@ -6,6 +6,16 @@
 
 It's the Scala library equivalent of the vim plugin [Tabular][vim-tabular].
 
+Here's are few examples of things you can do with `tabular`:
+
+* Showing maps, multimaps, collection of products and matrices:
+
+![](http://i.imgur.com/pt6qJOu.png)
+
+* Show the transitive dependencies in a play app:
+
+![](http://i.imgur.com/6EmGgpJ.png)
+
 ## Setup
 
 Add this to your sbt build definitions, such as in `build.sbt`:
