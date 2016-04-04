@@ -3,18 +3,21 @@ import SbtMisc._
 lazy val tabular = project in file(".")
 
 organization := "com.dwijnand"
-        name := "tabular"
     licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
+   startYear := Some(2015)
  description := "A way to show data in tabular form"
     homepage := Some(url("https://github.com/dwijnand/tabular"))
 
 val scala211 = settingKey[String]("")
 val scala210 = settingKey[String]("")
-          scala211 := "2.11.7"
+          scala211 := "2.11.8"
           scala210 := "2.10.6"
       scalaVersion := scala211.value
 crossScalaVersions := Seq(scala211.value, scala210.value)
 // TODO: Consider adding support for Scala 2.12 & Scala.js
+
+       maxErrors := 15
+triggeredMessage := Watched.clearWhenTriggered
 
 scalacOptions ++= Seq("-encoding", "utf8")
 scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
@@ -26,8 +29,8 @@ scalacOptions  += "-Yinline-warnings"
 scalacOptions  += "-Yno-adapted-args"
 scalacOptions  += "-Ywarn-dead-code"
 scalacOptions  += "-Ywarn-numeric-widen"
-scalacOptions ++= "-Ywarn-unused".ifScala211Plus.value.toList
-scalacOptions ++= "-Ywarn-unused-import".ifScala211Plus.value.toList
+scalacOptions  += "-Ywarn-unused".ifScala211Plus.value
+scalacOptions  += "-Ywarn-unused-import".ifScala211Plus.value
 scalacOptions  += "-Ywarn-value-discard"
 // TODO: Consider no predef and no import
 
@@ -51,9 +54,6 @@ wartremoverWarnings  -= Wart.Serializable
 wartremoverWarnings  -= Wart.Throw
 wartremoverWarnings  -= Wart.ToString // TODO: Add TryShow (non default unsafe wart)
 
-       maxErrors := 5
-triggeredMessage := Watched.clearWhenTriggered
-
 dependencyOverrides += "org.scala-lang" % "scala-compiler" % scalaVersion.value // sbt/sbt#2286
 dependencyOverrides += "org.scala-lang" % "scala-library"  % scalaVersion.value
 dependencyOverrides += "org.scala-lang" % "scala-reflect"  % scalaVersion.value
@@ -65,10 +65,11 @@ testFrameworks += new TestFramework("utest.runner.Framework")
 
 initialCommands in console += "\n" + IO.read((resourceDirectory in Compile).value / "initialCommands.scala")
 
+             fork in Test := false
+      logBuffered in Test := false
 parallelExecution in Test := true
-fork in Test := false
 
-fork in run := true
+         fork in run := true
 cancelable in Global := true
 
 pomExtra := pomExtra.value ++ {
