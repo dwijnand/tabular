@@ -64,18 +64,18 @@ final case class TravKVsWithTabular[K, V](_xs: TraversableOnce[(K, TraversableOn
 
 
 final case class MatrixWithTabular[T](_xss: TraversableOnce[TraversableOnce[T]]) extends AnyVal {
-  def showM: Vector[String] = {
+  def showM: Seq[String] = {
     val rows0 = _xss.toVector
 
     val maxWidth = rows0.foldLeft(0)((acc, x) => acc max x.size)
 
     val rows = rows0 map (_.toVector map (_.toString) padTo (maxWidth, ""))
 
-    val cols = (0 until maxWidth).toVector map (idx => _xss map (_.toIndexedSeq.applyOrElse(idx, (_: Int) => "").toString))
+    val cols = (0 until maxWidth).toVector map (idx => rows0 map (_.toIndexedSeq.applyOrElse(idx, (_: Int) => "").toString))
 
-    val widths = cols map (col => col map (_.length) max)
+    val maxWidths = cols map (col => col map (_.length) max)
 
-    val rowFormat = widths map (_.rightFormatString) mkString " "
+    val rowFormat = maxWidths map (_.rightFormatString) mkString " "
     rows map (row => rowFormat.format(row.seq: _*))
   }
 }
