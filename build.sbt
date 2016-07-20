@@ -8,13 +8,15 @@ organization := "com.dwijnand"
  description := "A way to show data in tabular form"
     homepage := Some(url("https://github.com/dwijnand/tabular"))
 
+val scala212 = settingKey[String]("")
 val scala211 = settingKey[String]("")
 val scala210 = settingKey[String]("")
+          scala212 := "2.12.0-M5"
           scala211 := "2.11.8"
           scala210 := "2.10.6"
       scalaVersion := scala211.value
-crossScalaVersions := Seq(scala211.value, scala210.value)
-// TODO: Consider adding support for Scala 2.12 & Scala.js
+crossScalaVersions := Seq(scala212.value, scala211.value, scala210.value)
+// TODO: Consider adding support for Scala.js
 
        maxErrors := 15
 triggeredMessage := Watched.clearWhenTriggered
