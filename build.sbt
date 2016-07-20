@@ -54,11 +54,6 @@ wartremoverWarnings  -= Wart.Serializable
 wartremoverWarnings  -= Wart.Throw
 wartremoverWarnings  -= Wart.ToString // TODO: Add TryShow (non default unsafe wart)
 
-dependencyOverrides += "org.scala-lang" % "scala-compiler" % scalaVersion.value // sbt/sbt#2286
-dependencyOverrides += "org.scala-lang" % "scala-library"  % scalaVersion.value
-dependencyOverrides += "org.scala-lang" % "scala-reflect"  % scalaVersion.value
-dependencyOverrides += "org.scala-lang" % "scalap"         % scalaVersion.value
-
 libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1" % "test"
 
 testFrameworks += new TestFramework("utest.runner.Framework")
