@@ -1,87 +1,66 @@
 lazy val tabular = project in file(".")
 
-organization := "com.dwijnand"
-    licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
-   startYear := Some(2015)
- description := "A way to show data in tabular form"
-    homepage := Some(url("https://github.com/dwijnand/tabular"))
+organization in Global := "com.dwijnand"
+        name in Global := "tabular"
+    licences in Global := Seq(Apache2)
+   startYear in Global := Some(2015)
+ description in Global := "A way to show data in tabular form"
+  developers in Global := List(Developer("dwijnand", "Dale Wijnand", "dale wijnand gmail com", url("https://dwijnand.com")))
+     scmInfo in Global := Some(ScmInfo(url(s"https://github.com/dwijnand/tabular"), "scm:git:git@github.com:dwijnand/tabular.git"))
 
-val scala211 = settingKey[String]("")
-val scala210 = settingKey[String]("")
-          scala211 := "2.11.8"
-          scala210 := "2.10.6"
-      scalaVersion := scala211.value
-crossScalaVersions := Seq(scala211.value, scala210.value)
+          scala211 in Global := "2.11.8"
+          scala210 in Global := "2.10.6"
+      scalaVersion in Global := scala211.value
+crossScalaVersions in Global := Seq(scala211.value, scala210.value)
 // TODO: Consider adding support for Scala 2.12 & Scala.js
 
-       maxErrors := 15
-triggeredMessage := Watched.clearWhenTriggered
+       maxErrors in Global := 15
+triggeredMessage in Global := Watched.clearWhenTriggered
 
-scalacOptions ++= Seq("-encoding", "utf8")
-scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
-scalacOptions  += "-language:higherKinds"
-scalacOptions  += "-language:implicitConversions"
-scalacOptions  += "-language:postfixOps"
-scalacOptions  += "-Xfuture"
-scalacOptions  += "-Yinline-warnings"
-scalacOptions  += "-Yno-adapted-args"
-scalacOptions  += "-Ywarn-dead-code"
-scalacOptions  += "-Ywarn-numeric-widen"
-scalacOptions  += "-Ywarn-unused".ifScala211Plus.value
-scalacOptions  += "-Ywarn-unused-import".ifScala211Plus.value
-scalacOptions  += "-Ywarn-value-discard"
-// TODO: Consider no predef and no import
+scalacOptions in Global ++= "-encoding utf8"
+scalacOptions in Global ++= "-deprecation -feature -unchecked -Xlint"
+scalacOptions in Global  += "-language:experimental.macros"
+scalacOptions in Global  += "-language:higherKinds"
+scalacOptions in Global  += "-language:implicitConversions"
+scalacOptions in Global  += "-language:postfixOps"
+scalacOptions in Global  += "-Xfuture"
+scalacOptions in Global  += "-Yno-adapted-args"
+scalacOptions in Global  += "-Ywarn-dead-code"
+scalacOptions in Global  += "-Ywarn-numeric-widen"
+scalacOptions in Global  += "-Ywarn-unused".ifScala211Plus.value
+scalacOptions in Global  += "-Ywarn-unused-import".ifScala211Plus.value
+scalacOptions in Global  += "-Ywarn-value-discard"
 
-scalacOptions in (Compile, console) -= "-Ywarn-unused-import"
-scalacOptions in (Test,    console) -= "-Ywarn-unused-import"
+scalacOptions in Global in console -= "-Ywarn-unused-import"
 
-wartremoverWarnings ++= Warts.unsafe
-wartremoverWarnings  += Wart.Enumeration
-wartremoverWarnings  += Wart.ExplicitImplicitTypes
-wartremoverWarnings  += Wart.FinalCaseClass
-wartremoverWarnings  += Wart.JavaConversions
-wartremoverWarnings  += Wart.MutableDataStructures
-wartremoverWarnings ++= Wart.NoNeedForMonad.ifScala211Plus.value.toList // bombs b/c uses quasiquotes #106
-wartremoverWarnings  += Wart.Nothing
-wartremoverWarnings  += Wart.Option2Iterable
-wartremoverWarnings  -= Wart.Any                    // bans f-interpolator #158
-wartremoverWarnings  -= Wart.DefaultArguments
-wartremoverWarnings  -= Wart.NonUnitStatements      // bans this.type #118
-wartremoverWarnings  -= Wart.Product
-wartremoverWarnings  -= Wart.Serializable
-wartremoverWarnings  -= Wart.Throw
-wartremoverWarnings  -= Wart.ToString // TODO: Add TryShow (non default unsafe wart)
+wartremoverWarnings in Global ++= Warts.unsafe
+wartremoverWarnings in Global  += Wart.Enumeration
+wartremoverWarnings in Global  += Wart.ExplicitImplicitTypes
+wartremoverWarnings in Global  += Wart.FinalCaseClass
+wartremoverWarnings in Global  += Wart.JavaConversions
+wartremoverWarnings in Global  += Wart.MutableDataStructures
+wartremoverWarnings in Global ++= Wart.NoNeedForMonad.ifScala211Plus.value.toList // bombs b/c uses quasiquotes #106
+wartremoverWarnings in Global  += Wart.Nothing
+wartremoverWarnings in Global  += Wart.Option2Iterable
+wartremoverWarnings in Global  -= Wart.Any                    // bans f-interpolator #158
+wartremoverWarnings in Global  -= Wart.DefaultArguments
+wartremoverWarnings in Global  -= Wart.NonUnitStatements      // bans this.type #118
+wartremoverWarnings in Global  -= Wart.Product
+wartremoverWarnings in Global  -= Wart.Serializable
+wartremoverWarnings in Global  -= Wart.Throw
+wartremoverWarnings in Global  -= Wart.ToString // TODO: Add TryShow (non default unsafe wart)
 
 libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1" % "test"
 
-testFrameworks += new TestFramework("utest.runner.Framework")
+testFrameworks in Global += new TestFramework("utest.runner.Framework")
 
-initialCommands in console += "\n" + IO.read((resourceDirectory in Compile).value / "initialCommands.scala")
+initialCommands in Global in console += "\n" + IO.read((resourceDirectory in Compile).value / "initialCommands.scala")
 
-             fork in Test := false
-      logBuffered in Test := false
-parallelExecution in Test := true
+             fork in Global in Test := false
+      logBuffered in Global in Test := false
+parallelExecution in Global in Test := true
 
-         fork in run := true
-cancelable in Global := true
-
-pomExtra := pomExtra.value ++ {
-    <developers>
-        <developer>
-            <id>dwijnand</id>
-            <name>Dale Wijnand</name>
-            <email>dale wijnand gmail com</email>
-            <url>dwijnand.com</url>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git:github.com/dwijnand/tabular.git</connection>
-        <developerConnection>scm:git:git@github.com:dwijnand/tabular.git</developerConnection>
-        <url>https://github.com/dwijnand/tabular</url>
-    </scm>
-}
+      fork in Global in run := true
+cancelable in Global        := true
 
 releaseCrossBuild := true
-
-watchSources ++= (baseDirectory.value * "*.sbt").get
-watchSources ++= (baseDirectory.value / "project" * "*.scala").get

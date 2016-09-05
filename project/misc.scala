@@ -15,6 +15,7 @@ object MiscPlugin extends AutoPlugin {
   object autoImport {
     val licences = settingKey[Seq[Licence]]("Project (typed) licences, UK spelling")
     val scala211 = settingKey[String]("")
+    val scala210 = settingKey[String]("")
 
     def scalaPartV = scalaVersion(CrossVersion.partialVersion)
 
