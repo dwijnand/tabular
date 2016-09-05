@@ -1,37 +1,42 @@
 import sbt._, Keys._
 
-object SbtMisc {
-  // Replace with Def.settings in 0.13.10+
-  def Settings(settings: SettingsDefinition*): Seq[Setting[_]] = settings flatMap (_.settings)
+object MiscPlugin extends AutoPlugin {
+  override def requires = plugins.JvmPlugin
+  override def trigger = allRequirements
 
-  def scalaPartV = Def setting (CrossVersion partialVersion scalaVersion.value)
+  object autoImport {
+    def scalaPartV = scalaVersion(CrossVersion.partialVersion)
 
-  implicit final class AnyWithIfScala10[A](val __x: A) {
-    def ifScala210     = Def setting (scalaPartV.value collect { case (2, 10)           => __x })
-    def ifScala211Plus = Def setting (scalaPartV.value collect { case (2, y) if y >= 11 => __x })
+    implicit final class AnyWithIfScala10[A](val __x: A) {
+      def ifScala210     = Def setting (scalaPartV.value collect { case (2, 10)           => __x })
+      def ifScala211Plus = Def setting (scalaPartV.value collect { case (2, y) if y >= 11 => __x })
+    }
+
+    val noDocs = Def.settings(sources in (Compile, doc) := Nil, publishArtifact in (Compile, packageDoc) := false)
+    val noSources = Def.settings(publishArtifact in (Compile, packageSrc) := false)
+    val noPackage = Def.settings(Keys.`package` := file(""), packageBin := file(""), packagedArtifacts := Map())
+    val noPublish = Def.settings(
+      makePom         := file(""),
+      deliver         := file(""),
+      deliverLocal    := file(""),
+      publish         := {},
+      publishLocal    := {},
+      publishM2       := {},
+      publishArtifact := false,
+      publishTo       := Some(Resolver.file("devnull", file("/dev/null")))
+    )
+    val noArtifacts = Def.settings(noPackage, noPublish)
+
+    implicit def addRemoveOption[T]: AddRemoveOption[T] = new AddRemoveOption[T]
+    class AddRemoveOption[T] extends AnyRef
+        with Append.Sequence[Seq[T], Option[T], Option[T]]
+        with Remove.Value[Seq[T], Option[T]] with Remove.Values[Seq[T], Option[T]]
+    {
+      def appendValue( a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a :+ _)
+        def appendValues(a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a :+ _)
+
+      def removeValue( a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a filterNot _.==)
+        def removeValues(a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a filterNot _.==)
+      }
   }
-
-  val noDocs = Settings(sources in (Compile, doc) := Nil, publishArtifact in (Compile, packageDoc) := false)
-  val noPackage = Settings(Keys.`package` := file(""), packageBin := file(""), packagedArtifacts := Map())
-  val noPublish = Settings(
-    publishArtifact := false,
-    publish         := {},
-    publishLocal    := {},
-    publishM2       := {},
-    publishTo       := Some(Resolver.file("devnull", file("/dev/null")))
-  )
-  val noArtifacts = Settings(noPackage, noPublish)
-
-  // Remove with sbt 0.13.12+
-  implicit def appendOption[T]: Append.Sequence[Seq[T], Option[T], Option[T]] =
-    new Append.Sequence[Seq[T], Option[T], Option[T]] {
-      def appendValue(a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a :+ _)
-      def appendValues(a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a :+ _)
-    }
-
-  implicit def removeOption[T]: Remove.Value[Seq[T], Option[T]] with Remove.Values[Seq[T], Option[T]] =
-    new Remove.Value[Seq[T], Option[T]] with Remove.Values[Seq[T], Option[T]] {
-      def removeValue(a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a filterNot _.==)
-      def removeValues(a: Seq[T], b: Option[T]): Seq[T] = b.fold(a)(a filterNot _.==)
-    }
 }

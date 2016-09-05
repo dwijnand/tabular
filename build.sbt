@@ -1,5 +1,3 @@
-import SbtMisc._
-
 lazy val tabular = project in file(".")
 
 organization := "com.dwijnand"
