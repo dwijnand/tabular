@@ -1,4 +1,10 @@
-lazy val tabular = project in file(".")
+import org.scalajs.sbtplugin.cross.CrossProject
+
+lazy val tabular = project in file(".") aggregate (tabularJVM, tabularJS)
+
+val tabularCross = CrossProject("tabular", file("."), CrossType.Pure)
+val tabularJVM   = tabularCross.jvm
+val tabularJS    = tabularCross.js
 
 organization in Global := "com.dwijnand"
         name in Global := "tabular"
@@ -50,11 +56,12 @@ wartremoverWarnings in Global  -= Wart.Serializable
 wartremoverWarnings in Global  -= Wart.Throw
 wartremoverWarnings in Global  -= Wart.ToString // TODO: Add TryShow (non default unsafe wart)
 
-libraryDependencies += "com.lihaoyi" %% "utest" % "0.3.1" % "test"
+libraryDependencies in tabularJVM += "com.lihaoyi" %% "utest" % "0.3.1" % "test"
+libraryDependencies in tabularJS  += "com.lihaoyi" %% "utest" % "0.3.1" % "test"
 
 testFrameworks in Global += new TestFramework("utest.runner.Framework")
 
-initialCommands in Global in console += "\n" + IO.read((resourceDirectory in Compile).value / "initialCommands.scala")
+// initialCommands in Global in console += "\n" + IO.read((resourceDirectory in Compile).value / "initialCommands.scala")
 
              fork in Global in Test := false
       logBuffered in Global in Test := false
@@ -64,3 +71,6 @@ parallelExecution in Global in Test := true
 cancelable in Global        := true
 
 releaseCrossBuild := true
+
+// Force the root project to not share sources with the cross project, but still have base = file(".")
+baseDirectory := file("./project/root")
